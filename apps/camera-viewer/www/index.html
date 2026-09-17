@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#000000" />
+    <title>Camera</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #000;
+        color: #eee;
+        font-family: system-ui, sans-serif;
+        overflow: hidden;
+      }
+      #player {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+      }
+      #player video {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: #000;
+      }
+      .hud {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 12px max(12px, env(safe-area-inset-right))
+          max(16px, env(safe-area-inset-bottom))
+          max(12px, env(safe-area-inset-left));
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+      }
+      button {
+        appearance: none;
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 16px;
+        background: #2b6cff;
+        color: #fff;
+      }
+      button.secondary {
+        background: #333;
+      }
+      #note {
+        flex: 1;
+        font-size: 13px;
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <video-stream id="player"></video-stream>
+    <div class="hud">
+      <span id="note">Starting…</span>
+      <button type="button" id="sound">Unmute</button>
+      <button type="button" class="secondary" id="full">Fullscreen</button>
+    </div>
+
+    <script type="module">
+      import "./video-stream.js";
+
+      const streamName =
+        new URLSearchParams(location.search).get("src") || "cam";
+      const player = document.getElementById("player");
+      const note = document.getElementById("note");
+      const sound = document.getElementById("sound");
+      const full = document.getElementById("full");
+
+      player.mode = "webrtc,mse,hls,mjpeg";
+      player.media = "video,audio";
+
+      const CHECK_MS = 5 * 60 * 1000;
+      const CONNECT_GRACE_MS = 20000;
+      const wsUrl = new URL(
+        "api/ws?src=" + encodeURIComponent(streamName),
+        location.href
+      );
+
+      const innerVideo = () => player.querySelector("video");
+      let trying = false;
+      let expectLiveUntil = 0;
+      let nextCheckAt = 0;
+
+      const isLive = () => {
+        const video = innerVideo();
+        return Boolean(video && video.readyState >= 2 && video.videoWidth > 0);
+      };
+
+      const formatWait = (ms) => {
+        const total = Math.max(0, Math.ceil(ms / 1000));
+        const m = Math.floor(total / 60);
+        const s = total % 60;
+        return m + ":" + String(s).padStart(2, "0");
+      };
+
+      const stopPlayer = () => {
+        if (player.reconnectTID) {
+          clearTimeout(player.reconnectTID);
+          player.reconnectTID = 0;
+        }
+        player.RECONNECT_TIMEOUT = CHECK_MS;
+        player.ondisconnect();
+      };
+
+      const startTrying = () => {
+        trying = true;
+        player.RECONNECT_TIMEOUT = 15000;
+        player.src = wsUrl;
+        expectLiveUntil = Date.now() + CONNECT_GRACE_MS;
+        note.textContent = "Connecting…";
+      };
+
+      const waitFiveMinutes = () => {
+        trying = false;
+        stopPlayer();
+        nextCheckAt = Date.now() + CHECK_MS;
+        note.textContent =
+          "Camera is off. Next check in " + formatWait(CHECK_MS);
+      };
+
+      startTrying();
+
+      setInterval(() => {
+        if (isLive()) {
+          trying = true;
+          expectLiveUntil = Date.now() + CONNECT_GRACE_MS;
+          note.textContent = streamName;
+          return;
+        }
+        if (trying && Date.now() < expectLiveUntil) return;
+        if (trying) {
+          waitFiveMinutes();
+          return;
+        }
+        if (Date.now() >= nextCheckAt) {
+          startTrying();
+          return;
+        }
+        note.textContent =
+          "Camera is off. Next check in " + formatWait(nextCheckAt - Date.now());
+      }, 1000);
+
+      sound.addEventListener("click", () => {
+        const video = innerVideo();
+        if (!video) return;
+        video.muted = !video.muted;
+        sound.textContent = video.muted ? "Unmute" : "Mute";
+        video.play().catch(() => {});
+      });
+
+      full.addEventListener("click", () => {
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        } else {
+          (player.requestFullscreen || player.webkitRequestFullscreen).call(
+            player
+          );
+        }
+      });
+    </script>
+  </body>
+</html>

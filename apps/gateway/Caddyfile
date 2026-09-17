@@ -1,0 +1,34 @@
+{
+	auto_https off
+}
+
+# LAN names (mDNS). HTTP only — Let's Encrypt cannot issue certs for .local.
+# Add a new app:
+#   1. Uncomment a handle block below
+#   2. Add the name to mdns-names.txt
+#   3. Add a card in www/index.html
+#   4. sudo ./install.sh   (or reload caddy + restart mdns-publish)
+
+:80 {
+	@camera host camera.local
+	handle @camera {
+		reverse_proxy 127.0.0.1:1984
+	}
+
+	@budget host budget.local
+	handle @budget {
+		reverse_proxy 127.0.0.1:8090
+	}
+
+	# Next app (example — uncomment and set the port):
+	# @lights host lights.local
+	# handle @lights {
+	# 	reverse_proxy 127.0.0.1:8080
+	# }
+
+	handle {
+		root * /var/www/rasp-gateway
+		encode gzip
+		file_server
+	}
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0D1741" />
+    <title>{% block title %}Budget{% endblock %}</title>
+    <link rel="preload" href="/static/fonts/Montserrat-800-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/static/fonts/PTSans-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/static/style.css?v={{ static_version }}" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="brand-wrap">
+        <a class="brand" href="/">Budget</a>
+        {% if quote %}
+        <span class="rate-chip">USD {{ '%.2f'|format(quote.rate) }} · {{ quote.source }}</span>
+        {% endif %}
+      </div>
+      <nav>
+        <a href="/income">Income</a>
+        <a href="/expense">Spend</a>
+        <a href="/sleeves">Save</a>
+        <a href="/usd">USD</a>
+        <a href="/opening">Balances</a>
+      </nav>
+    </header>
+    <form class="exclude-bar" method="post" action="/exclude">
+      <span>Count</span>
+      {% for key, label in count_accounts %}
+      <button type="submit" name="account" value="{{ key }}"
+              class="chip{% if key in excluded %} is-off{% endif %}"
+              aria-pressed="{{ 'false' if key in excluded else 'true' }}">
+        {{ label }}
+      </button>
+      {% endfor %}
+    </form>
+    {% for item in flashes %}
+    <div class="flash {{ item.kind }}">{{ item.msg }}</div>
+    {% endfor %}
+    <main>
+      {% block body %}{% endblock %}
+    </main>
+  </body>
+</html>

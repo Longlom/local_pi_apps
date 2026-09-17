@@ -1,0 +1,10 @@
+apps/camera-viewer/config.env
+apps/camera-viewer/go2rtc.yaml
+apps/camera-viewer/bin/
+apps/camera-viewer/go2rtc.pid
+apps/camera-viewer/www/status.json
+apps/budget/config.env
+apps/budget/data/
+apps/budget/.venv/
+*.log
+.DS_Store

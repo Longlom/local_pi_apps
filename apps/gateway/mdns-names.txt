@@ -1,0 +1,4 @@
+camera.local
+pi.local
+budget.local
+# lights.local

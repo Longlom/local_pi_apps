@@ -1,0 +1,42 @@
+/* ============================================================
+   NHA TRANG INSIDER — Effects Tokens
+   Gradients · Overlays · Blur · Transitions
+   ============================================================ */
+
+:root {
+
+  /* --- Brand Gradients --- */
+  --gradient-navy:       linear-gradient(145deg, #06091C 0%, #142256 100%); /* @kind color */
+  --gradient-gold:       linear-gradient(135deg, #A87210 0%, #C9941A 30%, #E8C86A 60%, #C9941A 100%); /* @kind color */
+  --gradient-sunset:     linear-gradient(135deg, #B83020 0%, #E8583A 35%, #E0A040 70%, #F5E4B8 100%); /* @kind color */
+  --gradient-sea:        linear-gradient(180deg, #083040 0%, #1E8AA8 55%, #36BEB0 100%); /* @kind color */
+  --gradient-beach:      linear-gradient(160deg, #1E8AA8 0%, #5CB8CC 40%, #F0C88A 75%, #FBF0DC 100%); /* @kind color */
+  --gradient-tropical:   linear-gradient(135deg, #F5C200 0%, #E8583A 100%); /* @kind color */
+  --gradient-viral:      linear-gradient(135deg, #000000 0%, #181828 100%); /* @kind color */
+
+  /* --- Photo Overlays --- */
+  --overlay-navy-strong: linear-gradient(180deg, rgba(13,23,65,0.10) 0%, rgba(13,23,65,0.85) 100%); /* @kind color */
+  --overlay-navy-mid:    linear-gradient(180deg, rgba(13,23,65,0.00) 0%, rgba(13,23,65,0.65) 100%); /* @kind color */
+  --overlay-black-mid:   linear-gradient(180deg, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.70) 100%); /* @kind color */
+  --overlay-warm:        linear-gradient(180deg, rgba(232,88,58,0.00) 0%, rgba(176,48,32,0.70) 100%); /* @kind color */
+  --overlay-scrim:       rgba(13,23,65,0.55); /* @kind color */
+
+  /* --- Glass / Blur --- */
+  --glass-navy:  rgba(13,23,65,0.72); /* @kind color */
+  --glass-dark:  rgba(0,0,0,0.60); /* @kind color */
+  --glass-warm:  rgba(244,240,220,0.80); /* @kind color */
+  --blur-sm:  blur(6px); /* @kind other */
+  --blur-md:  blur(14px); /* @kind other */
+  --blur-lg:  blur(28px); /* @kind other */
+
+  /* --- Transitions --- */
+  --transition-fast:   150ms ease; /* @kind other */
+  --transition-normal: 280ms ease; /* @kind other */
+  --transition-slow:   450ms cubic-bezier(0.16, 1, 0.3, 1); /* @kind other */
+  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1); /* @kind other */
+
+  /* --- Border Styles --- */
+  --border-gold:    1.5px solid var(--color-gold-500); /* @kind other */
+  --border-subtle:  1px solid var(--color-grey-100); /* @kind other */
+  --border-dark:    1px solid rgba(255,255,255,0.12); /* @kind other */
+}

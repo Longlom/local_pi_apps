@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0D1741" />
+    <title>Pi apps</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --navy-950: #06091c;
+        --navy-900: #0d1741;
+        --gold-500: #c9941a;
+        --gold-300: #e8c86a;
+        --grey-300: #c4c4d4;
+        --grey-500: #9090a8;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        font-family: "PT Sans", system-ui, sans-serif;
+        background: var(--navy-950);
+        background-image: linear-gradient(145deg, #06091c 0%, #142256 100%);
+        background-attachment: fixed;
+        color: #fff;
+        padding: 32px max(20px, env(safe-area-inset-right))
+          max(24px, env(safe-area-inset-bottom))
+          max(20px, env(safe-area-inset-left));
+      }
+      .wrap {
+        max-width: 44rem;
+        margin: 0 auto;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+        font-family: "Oswald", system-ui, sans-serif;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--gold-300);
+      }
+      .badge::before {
+        content: "";
+        width: 20px;
+        height: 20px;
+        border-radius: 999px;
+        background: linear-gradient(
+          135deg,
+          #a87210 0%,
+          #c9941a 30%,
+          #e8c86a 60%,
+          #c9941a 100%
+        );
+        box-shadow: 0 4px 24px rgba(201, 148, 26, 0.4);
+      }
+      h1 {
+        font-family: Montserrat, system-ui, sans-serif;
+        font-weight: 800;
+        font-size: 1.75rem;
+        letter-spacing: -0.03em;
+        text-transform: uppercase;
+        margin: 0 0 6px;
+      }
+      p.sub {
+        margin: 0 0 24px;
+        color: var(--grey-500);
+        font-size: 0.95rem;
+      }
+      a.app {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        text-decoration: none;
+        color: inherit;
+        background: rgba(255, 255, 255, 0.045);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 16px;
+        padding: 18px 20px;
+        margin-bottom: 10px;
+        transition: 280ms ease;
+      }
+      a.app:hover {
+        transform: translateY(-2px);
+        border-color: var(--gold-500);
+      }
+      a.app strong {
+        display: block;
+        font-family: Montserrat, system-ui, sans-serif;
+        font-weight: 700;
+        font-size: 1.05rem;
+        letter-spacing: -0.02em;
+        margin-bottom: 4px;
+      }
+      a.app span {
+        font-size: 0.85rem;
+        color: var(--grey-500);
+      }
+      a.app i {
+        font-style: normal;
+        color: var(--gold-500);
+        font-size: 1.2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="badge">Raspberry Pi · LAN</div>
+      <h1>Pi apps</h1>
+      <p class="sub">
+        Same Wi-Fi as the Raspberry Pi. Each app has its own
+        <code>.local</code> name.
+      </p>
+      <a class="app" href="http://camera.local/">
+        <span>
+          <strong>Camera</strong>
+          <span>camera.local — live video and audio</span>
+        </span>
+        <i>&rarr;</i>
+      </a>
+      <a class="app" href="http://budget.local/">
+        <span>
+          <strong>Budget</strong>
+          <span>budget.local — savings, 10%, spending</span>
+        </span>
+        <i>&rarr;</i>
+      </a>
+    </div>
+  </body>
+</html>

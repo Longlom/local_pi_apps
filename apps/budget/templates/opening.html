@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Opening balances{% endblock %}
+{% block body %}
+<h1>Opening balances</h1>
+<p class="muted">Seed what is already in each pot. Later incomes, expenses, and USD buys are added on top. Use 0.00 if you start from empty.</p>
+<form method="post" action="/opening">
+  <label>10% RUB
+    <input type="text" inputmode="decimal" name="ten" required value="{{ '%.2f'|format(opening['ten'] / 100) }}" />
+  </label>
+  <label>10% USD
+    <input type="text" inputmode="decimal" name="ten_usd" required value="{{ '%.2f'|format(opening['ten_usd'] / 100) }}" />
+  </label>
+  <label>Everyday
+    <input type="text" inputmode="decimal" name="everyday" required value="{{ '%.2f'|format(opening['everyday'] / 100) }}" />
+  </label>
+  <label>Savings RUB
+    <input type="text" inputmode="decimal" name="savings" required value="{{ '%.2f'|format(opening['savings'] / 100) }}" />
+  </label>
+  <label>Savings USD
+    <input type="text" inputmode="decimal" name="savings_usd" required value="{{ '%.2f'|format(opening['savings_usd'] / 100) }}" />
+  </label>
+  <label>Daughter RUB
+    <input type="text" inputmode="decimal" name="daughter" required value="{{ '%.2f'|format(opening['daughter'] / 100) }}" />
+  </label>
+  <label>Daughter USD
+    <input type="text" inputmode="decimal" name="daughter_usd" required value="{{ '%.2f'|format(opening['daughter_usd'] / 100) }}" />
+  </label>
+  <label>USD cash
+    <input type="text" inputmode="decimal" name="usd" required value="{{ '%.2f'|format(opening['usd'] / 100) }}" />
+  </label>
+  <button type="submit" class="btn">Save opening balances</button>
+</form>
+{% endblock %}

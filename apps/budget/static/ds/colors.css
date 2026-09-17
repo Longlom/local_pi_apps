@@ -1,0 +1,89 @@
+/* ============================================================
+   NHA TRANG INSIDER — Color Tokens
+   ============================================================ */
+
+:root {
+
+  /* --- Brand: Navy --- */
+  --color-navy-950: #06091C;
+  --color-navy-900: #0D1741;
+  --color-navy-800: #142256;
+  --color-navy-700: #1B2D6B;
+  --color-navy-600: #223880;
+  --color-navy-500: #2A4495;
+
+  /* --- Brand: Gold --- */
+  --color-gold-900: #7A5500;
+  --color-gold-700: #A87210;
+  --color-gold-500: #C9941A;
+  --color-gold-400: #DBA830;
+  --color-gold-300: #E8C86A;
+  --color-gold-100: #F5E4B8;
+
+  /* --- Warm: Coral --- */
+  --color-coral-700: #B83020;
+  --color-coral-500: #E8583A;
+  --color-coral-400: #F07058;
+  --color-coral-300: #F4977E;
+  --color-coral-100: #FDDDD6;
+
+  /* --- Warm: Sand --- */
+  --color-sand-700: #C07820;
+  --color-sand-500: #E0A040;
+  --color-sand-300: #F0C88A;
+  --color-sand-100: #FBF0DC;
+
+  /* --- Sea: Ocean --- */
+  --color-sea-900: #083040;
+  --color-sea-700: #0F5870;
+  --color-sea-500: #1E8AA8;
+  --color-sea-300: #5CB8CC;
+  --color-sea-100: #C0E8F4;
+
+  /* --- Sea: Turquoise --- */
+  --color-turq-500: #36BEB0;
+  --color-turq-300: #70D4CC;
+  --color-turq-100: #C8F0EC;
+
+  /* --- Accent: Lime (Viral) --- */
+  --color-lime-500: #7FE030;
+  --color-lime-400: #96E84C;
+  --color-lime-200: #C8F498;
+
+  /* --- Accent: Amber (Tropical) --- */
+  --color-amber-500: #F5C200;
+  --color-amber-300: #FAD840;
+  --color-amber-100: #FDF2B0;
+
+  /* --- Neutrals --- */
+  --color-black:        #0A0A0A;
+  --color-charcoal-900: #181828;
+  --color-charcoal-700: #2C2C40;
+  --color-charcoal-500: #484860;
+  --color-grey-700:     #6A6A80;
+  --color-grey-500:     #9090A8;
+  --color-grey-300:     #C4C4D4;
+  --color-grey-100:     #EEEEF6;
+  --color-cream:        #FFF8EE;
+  --color-white:        #FFFFFF;
+
+  /* --- Semantic Aliases --- */
+  --color-bg-dark:       var(--color-navy-900);
+  --color-bg-black:      var(--color-black);
+  --color-bg-warm:       var(--color-cream);
+  --color-bg-card:       var(--color-white);
+
+  --color-text-on-dark:  var(--color-white);
+  --color-text-on-light: var(--color-navy-900);
+  --color-text-body:     var(--color-charcoal-900);
+  --color-text-muted:    var(--color-grey-500);
+
+  --color-accent-primary:   var(--color-gold-500);
+  --color-accent-warm:      var(--color-coral-500);
+  --color-accent-sea:       var(--color-sea-500);
+  --color-accent-viral:     var(--color-lime-500);
+  --color-accent-tropical:  var(--color-amber-500);
+
+  --color-border-gold:   var(--color-gold-500);
+  --color-border-subtle: var(--color-grey-100);
+}

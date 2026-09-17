@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{% if entry %}Edit expense{% else %}Add expense{% endif %}{% endblock %}
+{% block body %}
+<h1>{% if entry %}Edit expense{% else %}Add expense{% endif %}</h1>
+<form method="post" action="{% if entry %}/expense/{{ entry.id }}{% else %}/expense{% endif %}" id="expense-form">
+  <label>Date
+    <input type="date" name="occurred_on" value="{{ entry.occurred_on if entry else today }}" required />
+  </label>
+  <label>From
+    <select name="pot" id="pot">
+      {% for value, label in [
+        ("everyday", "Everyday"),
+        ("savings", "Savings bank"),
+        ("savings_usd", "Savings USD"),
+        ("daughter", "Daughter"),
+        ("daughter_usd", "Daughter USD"),
+        ("usd", "USD cash"),
+        ("ten", "10% (think twice)"),
+        ("ten_usd", "10% USD (think twice)")
+      ] %}
+      <option value="{{ value }}" {% if entry and entry.pot == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Amount
+    <input type="text" inputmode="decimal" name="amount" required placeholder="0.00"
+           value="{{ field(entry.amount_cents) if entry else '' }}" />
+  </label>
+  <label>Category
+    <select name="category" required>
+      {% for slug, label in categories.items() %}
+      <option value="{{ slug }}" {% if entry and entry.category == slug %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Note
+    <input type="text" name="note" maxlength="200" value="{{ entry.note if entry else '' }}" />
+  </label>
+  <label class="check hidden" id="ten-confirm">
+    <input type="checkbox" name="confirm_ten" value="1" />
+    I thought this through — spend from the 10% pot
+  </label>
+  <button type="submit" class="btn">{% if entry %}Save changes{% else %}Save expense{% endif %}</button>
+</form>
+<script>
+  const pot = document.getElementById("pot");
+  const box = document.getElementById("ten-confirm");
+  const original = "{{ entry.pot if entry else '' }}";
+  function toggle() {
+    const needsConfirm = ["ten", "ten_usd"].includes(pot.value) && pot.value !== original;
+    box.classList.toggle("hidden", !needsConfirm);
+  }
+  pot.addEventListener("change", toggle);
+  toggle();
+</script>
+{% endblock %}

@@ -1,0 +1,11 @@
+[Unit]
+Description=Apply quiet hours on boot (01:00–08:00 MSK)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/rasp/apps/quiet-hours/quiet-hours.sh auto
+
+[Install]
+WantedBy=multi-user.target

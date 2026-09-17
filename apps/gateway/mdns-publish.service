@@ -1,0 +1,14 @@
+[Unit]
+Description=Publish extra .local names for Pi apps
+After=network-online.target avahi-daemon.service
+Wants=network-online.target
+Requires=avahi-daemon.service
+
+[Service]
+Type=simple
+ExecStart=/home/longlom/rasp/apps/gateway/publish-mdns.sh
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,407 @@
+{
+  "apps/camera-viewer/install.sh": {
+    "mtime": 1789313115.9074225,
+    "ast_hash": "451277bee231297ee2447e52e2a42d75",
+    "semantic_hash": ""
+  },
+  "apps/camera-viewer/run.sh": {
+    "mtime": 1789313231.7613833,
+    "ast_hash": "4842f9a8ed8f995fd78026d9939338ed",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1789313148.5744119,
+    "ast_hash": "ac90bcc22cdde567e44a7ce1a2baf00c",
+    "semantic_hash": ""
+  },
+  "apps/camera-viewer/www/index.html": {
+    "mtime": 1789313266.2932942,
+    "ast_hash": "e3e8ef346bf860389b71c95599f27bad",
+    "semantic_hash": ""
+  },
+  "apps/camera-viewer/www/video-rtc.js": {
+    "mtime": 1789307737.4020712,
+    "ast_hash": "27e851b164c2bb04c3d27babc2639311",
+    "semantic_hash": ""
+  },
+  "apps/camera-viewer/www/video-stream.js": {
+    "mtime": 1789307737.407071,
+    "ast_hash": "804899b23ca59a554e1125aa519a8f50",
+    "semantic_hash": ""
+  },
+  "apps/gateway/install.sh": {
+    "mtime": 1789310804.675784,
+    "ast_hash": "e9ee685f2ff241a442541d80ef0dcaaa",
+    "semantic_hash": ""
+  },
+  "apps/gateway/publish-mdns.sh": {
+    "mtime": 1789309429.4991963,
+    "ast_hash": "2733d3e2c8c91d86ecde8618f87f4e93",
+    "semantic_hash": ""
+  },
+  "apps/gateway/mdns-names.txt": {
+    "mtime": 1789310798.1357949,
+    "ast_hash": "7fa67907ad0871cbf4548fb31c843b4b",
+    "semantic_hash": ""
+  },
+  "apps/gateway/www/index.html": {
+    "mtime": 1789312654.1725097,
+    "ast_hash": "c6b1d352ddaa7c92c93cc57b94e5a1c6",
+    "semantic_hash": ""
+  },
+  "apps/budget/app.py": {
+    "mtime": 1789629379.1026812,
+    "ast_hash": "9389b2c1b1f7ff12b2e9cad2c41bce6b",
+    "semantic_hash": ""
+  },
+  "apps/budget/db.py": {
+    "mtime": 1789629338.2424612,
+    "ast_hash": "67d425841f54c5c0041075cf9199d52b",
+    "semantic_hash": ""
+  },
+  "apps/budget/install.sh": {
+    "mtime": 1789310779.3748257,
+    "ast_hash": "8c15a0e0aaae0306a406fdd23790dee2",
+    "semantic_hash": ""
+  },
+  "apps/budget/money.py": {
+    "mtime": 1789628115.8426468,
+    "ast_hash": "03efe8edf901613da46fd873943bd5a9",
+    "semantic_hash": ""
+  },
+  "apps/budget/run.sh": {
+    "mtime": 1789310774.9308329,
+    "ast_hash": "46a3f8768da16081703e70b6c24df8db",
+    "semantic_hash": ""
+  },
+  "apps/budget/test_db.py": {
+    "mtime": 1789629421.5935369,
+    "ast_hash": "0f0e413a86b99e866d82bcaefdafee9c",
+    "semantic_hash": ""
+  },
+  "apps/budget/requirements.txt": {
+    "mtime": 1789310712.6709316,
+    "ast_hash": "a517fcbbb53038434e5501fc71a8f6b4",
+    "semantic_hash": ""
+  },
+  "apps/budget/templates/base.html": {
+    "mtime": 1789629396.1401076,
+    "ast_hash": "a43b0f06420259e0869f349d240c6c8b",
+    "semantic_hash": ""
+  },
+  "apps/budget/templates/expense.html": {
+    "mtime": 1789629046.0593088,
+    "ast_hash": "2629f88b7ba99d98ebb0d1580c39b112",
+    "semantic_hash": ""
+  },
+  "apps/budget/templates/income.html": {
+    "mtime": 1789628209.7433612,
+    "ast_hash": "2930ad2e3c1618a3650bc1af41b085db",
+    "semantic_hash": ""
+  },
+  "apps/budget/templates/month.html": {
+    "mtime": 1789629401.5238903,
+    "ast_hash": "9ab197b38361d79296df5f76b239e316",
+    "semantic_hash": ""
+  },
+  "apps/budget/templates/opening.html": {
+    "mtime": 1789629046.0613086,
+    "ast_hash": "f8337b967de940cc422c575872ae8c50",
+    "semantic_hash": ""
+  },
+  "apps/budget/templates/usd.html": {
+    "mtime": 1789629043.432423,
+    "ast_hash": "f923ddef55a5b2df123bf805dde443a2",
+    "semantic_hash": ""
+  },
+  "apps/budget/charts.py": {
+    "mtime": 1789629011.52181,
+    "ast_hash": "ce083fa7ff77af57376b5bbe99c0196a",
+    "semantic_hash": ""
+  },
+  "apps/budget/fx.py": {
+    "mtime": 1789312271.8974197,
+    "ast_hash": "73878f146f805da684e1bc509397ddf8",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/_adherence.oxlintrc.json": {
+    "mtime": 1782967948.431602,
+    "ast_hash": "2c4cc8356bd5044c48e757199b4e6215",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/_ds_bundle.js": {
+    "mtime": 1782967948.432602,
+    "ast_hash": "72a81d12eb50a67a6b23f89ca7ce6c13",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/_ds_manifest.json": {
+    "mtime": 1782967948.4336019,
+    "ast_hash": "908d04046bcc23a9168eb40108dd642c",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/components/core/Badge.d.ts": {
+    "mtime": 1782967948.4566019,
+    "ast_hash": "6a90f5d395a7bc6a12d61b0ee85f6b18",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/components/core/Badge.jsx": {
+    "mtime": 1782967948.4576018,
+    "ast_hash": "0e72d18b1dd7091935a90232f21c2cbe",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/components/core/Button.d.ts": {
+    "mtime": 1782967948.458602,
+    "ast_hash": "c03a1b43c2d47742e0b12eedd94994a0",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/components/core/Button.jsx": {
+    "mtime": 1782967948.4596019,
+    "ast_hash": "efa8d1bd183082369611caba8e3effe8",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/components/core/Card.d.ts": {
+    "mtime": 1782967948.4606018,
+    "ast_hash": "78d5fbbdfe44b9880f6dbf9f50445b12",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/components/core/Card.jsx": {
+    "mtime": 1782967948.4616017,
+    "ast_hash": "a995d7c03f6486df1b2132b3a8cdb67a",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/components/core/Tag.d.ts": {
+    "mtime": 1782967948.462602,
+    "ast_hash": "830a6dad34009fb5e8632f980d11df3f",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/components/core/Tag.jsx": {
+    "mtime": 1782967948.4636018,
+    "ast_hash": "94364377b5b34dee9213e7f9bb3e82ee",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/support.js": {
+    "mtime": 1782967948.475602,
+    "ast_hash": "dcf7a0c76052ff1397a61940905a3a3a",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/Canvas-2.dc.html": {
+    "mtime": 1782967948.4136019,
+    "ast_hash": "5275f549b0e2388bff9a404733c07d9e",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/Canvas.dc.html": {
+    "mtime": 1782967948.414602,
+    "ast_hash": "5275f549b0e2388bff9a404733c07d9e",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/Fast-Track Carousel (Standalone Source).html": {
+    "mtime": 1782967948.415602,
+    "ast_hash": "6d249b79d9a45fe4ddfd4e4f1bff4d85",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/Fast-Track Carousel (Standalone).html": {
+    "mtime": 1782967948.424602,
+    "ast_hash": "6a83d4c425c5bdc1fbb3edb6aebce7f0",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/Fast-Track Carousel PRINT.html": {
+    "mtime": 1782967948.428602,
+    "ast_hash": "f96d92b070a36239df315a31a09d7629",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/Fast-Track Carousel Photos.html": {
+    "mtime": 1782967948.429602,
+    "ast_hash": "6416fd7e103cf14677a4a73761d4941b",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/Fast-Track Carousel.html": {
+    "mtime": 1782967948.4306018,
+    "ast_hash": "d8740bb3bc91bc7f09ab669b154eccac",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/SKILL.md": {
+    "mtime": 1782968119.729088,
+    "ast_hash": "aa627c9fde6eb63a0ec4424d407474d7",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/components/core/Badge.prompt.md": {
+    "mtime": 1782967948.4576018,
+    "ast_hash": "f679f7ccbef55214f3a7641eca687f85",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/components/core/Button.prompt.md": {
+    "mtime": 1782967948.4596019,
+    "ast_hash": "7917941a1b270c46377b721fa5ea8e47",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/components/core/Card.prompt.md": {
+    "mtime": 1782967948.4616017,
+    "ast_hash": "e0ad40cd7b8b5a7ae1323fc83bb8d94f",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/components/core/Tag.prompt.md": {
+    "mtime": 1782967948.4636018,
+    "ast_hash": "c4d68763d0c106cbb8e99ed74818fe08",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/components/core/core.card.html": {
+    "mtime": 1782967948.4646018,
+    "ast_hash": "603537b74e38bf75b002e7cf8099d618",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/guidelines/colors-accent.card.html": {
+    "mtime": 1782967948.465602,
+    "ast_hash": "953af0275bdd396a6eeb2fa300238a94",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/guidelines/colors-gold.card.html": {
+    "mtime": 1782967948.465602,
+    "ast_hash": "e074a5761d520299417912cbcb2b06c0",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/guidelines/colors-navy.card.html": {
+    "mtime": 1782967948.4666018,
+    "ast_hash": "b3ee58d1e0306ab307588d7aec79261b",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/guidelines/colors-neutral.card.html": {
+    "mtime": 1782967948.4676018,
+    "ast_hash": "4590fd3c36c10347d9e6bd6a322c5c89",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/guidelines/colors-sea.card.html": {
+    "mtime": 1782967948.4676018,
+    "ast_hash": "8f0ff9d527109a2d8422ac45d1d9098d",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/guidelines/colors-warm.card.html": {
+    "mtime": 1782967948.4686017,
+    "ast_hash": "d1fa6951ad3203688a0d857a78f51674",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/guidelines/content-styles.card.html": {
+    "mtime": 1782967948.4696019,
+    "ast_hash": "a12f1b56ddefaa416c787b855ef396b6",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/guidelines/gradients.card.html": {
+    "mtime": 1782967948.4696019,
+    "ast_hash": "6ed317e547ee0a432837ad8f8636d5c4",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/guidelines/logo.card.html": {
+    "mtime": 1782967948.4706018,
+    "ast_hash": "22b09ae69e13d5a390778bdc2d9ef259",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/guidelines/spacing.card.html": {
+    "mtime": 1782967948.4716017,
+    "ast_hash": "08119075bf9efc3e0ea1e6896c656626",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/guidelines/type-body.card.html": {
+    "mtime": 1782967948.4716017,
+    "ast_hash": "9c40c24c8b63da97ee213587bb429308",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/guidelines/type-display.card.html": {
+    "mtime": 1782967948.472602,
+    "ast_hash": "76920cf1f422b7e876372c2a142da69f",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/guidelines/type-labels.card.html": {
+    "mtime": 1782967948.4736018,
+    "ast_hash": "871ee81d192d2e14108b575dafdbd02a",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/readme.md": {
+    "mtime": 1782967948.4736018,
+    "ast_hash": "9f96a15d56d27097771634f524841cc1",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/ui_kits/instagram/index.html": {
+    "mtime": 1782967948.4806018,
+    "ast_hash": "5dd1417672e1343a7689cc1e9038dc1c",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/assets/logo-circle.png": {
+    "mtime": 1782967948.4406018,
+    "ast_hash": "9241a220d55dc49b148f8c6443fd067c",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/assets/logo.png": {
+    "mtime": 1782967948.4476018,
+    "ast_hash": "c0dda411ad02205e2d62d0fe9a7e7d3a",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/assets/style-premium.png": {
+    "mtime": 1782967948.4506018,
+    "ast_hash": "7ce328fab6bd8a61ba98c992af55d05f",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/assets/style-tropical.png": {
+    "mtime": 1782967948.4536018,
+    "ast_hash": "570a007d6f6578522536ef9a7db4d291",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/assets/style-viral.png": {
+    "mtime": 1782967948.4546018,
+    "ast_hash": "6660e1dc1c64df9f5b089740b2e0d09d",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/uploads/pasted-1781964193539-0.png": {
+    "mtime": 1782967948.4836018,
+    "ast_hash": "62dc0531e47b4f8512ad0a4e3f2e0ee1",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/uploads/pasted-1781964435838-0.png": {
+    "mtime": 1782967948.4876018,
+    "ast_hash": "77466a206fbe91c17381861a945a3765",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/uploads/pasted-1781964483355-0.png": {
+    "mtime": 1782967948.4886017,
+    "ast_hash": "6660e1dc1c64df9f5b089740b2e0d09d",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/uploads/pasted-1781964495248-0.png": {
+    "mtime": 1782967948.4906018,
+    "ast_hash": "570a007d6f6578522536ef9a7db4d291",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/uploads/pasted-1781964505643-0.png": {
+    "mtime": 1782967948.4926016,
+    "ast_hash": "7ce328fab6bd8a61ba98c992af55d05f",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/uploads/pasted-1781964608180-0.png": {
+    "mtime": 1782967948.4956017,
+    "ast_hash": "ea1aa3b5abc90f27bb1cae2e2cb4558f",
+    "semantic_hash": ""
+  },
+  "Nha Trang Insider DS/uploads/pasted-1781966176129-0.png": {
+    "mtime": 1782967948.5006018,
+    "ast_hash": "c0dda411ad02205e2d62d0fe9a7e7d3a",
+    "semantic_hash": ""
+  },
+  "apps/quiet-hours/install.sh": {
+    "mtime": 1789312880.0504844,
+    "ast_hash": "868e733d958b3d96ee91dbf0855a89b2",
+    "semantic_hash": ""
+  },
+  "apps/quiet-hours/quiet-hours.sh": {
+    "mtime": 1789312888.5614827,
+    "ast_hash": "4d01ab0ddfc8789ebbe241d9cf15995c",
+    "semantic_hash": ""
+  },
+  "apps/camera-viewer/watch-camera.sh": {
+    "mtime": 1789313259.324331,
+    "ast_hash": "c60edcb20e12e753f229c95b72fac9d1",
+    "semantic_hash": ""
+  },
+  "apps/budget/templates/sleeves.html": {
+    "mtime": 1789629042.4334664,
+    "ast_hash": "4207bfe62b2fc31a58332d5a5940d2c7",
+    "semantic_hash": ""
+  }
+}

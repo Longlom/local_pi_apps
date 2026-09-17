@@ -1,0 +1,97 @@
+<!-- @dsCard group="Components" viewport="700x395" name="Core Components" subtitle="Button · Badge · Tag · Card — all variants" -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="../../styles.css">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <style>* { box-sizing: border-box; margin: 0; }</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { Button, Badge, Card, Tag } = window.NhaTrangInsiderDS_1c0e3d;
+
+    const SL = ({ t }) => (
+      <div style={{ fontSize: '8.5px', fontWeight: 700, letterSpacing: '0.15em', color: '#9090A8', textTransform: 'uppercase', marginBottom: 9 }}>{t}</div>
+    );
+
+    function App() {
+      return (
+        <div style={{ fontFamily: 'var(--font-display)', padding: '15px 16px', background: '#F0F0F4', display: 'flex', flexDirection: 'column', gap: 15 }}>
+
+          <div>
+            <SL t="Badge" />
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+              <Badge variant="gold">VIP</Badge>
+              <Badge variant="navy">Камрань</Badge>
+              <Badge variant="coral">Fast-Track</Badge>
+              <Badge variant="lime">Инсайдер</Badge>
+              <Badge variant="sea">Острова</Badge>
+              <Badge variant="amber">Тропик</Badge>
+              <Badge variant="outline">Premium</Badge>
+              <Badge variant="gold" size="sm">sm</Badge>
+              <Badge variant="coral" size="lg">Large CTA</Badge>
+            </div>
+          </div>
+
+          <div>
+            <SL t="Button" />
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+              <Button variant="primary" size="sm">Заказать</Button>
+              <Button variant="secondary" size="sm">Подробнее</Button>
+              <Button variant="coral" size="sm">Fast-Track</Button>
+              <span style={{ background: '#0D1741', borderRadius: 99, padding: '3px 6px', display:'inline-flex' }}>
+                <Button variant="ghost" size="sm">Смотреть</Button>
+              </span>
+              <span style={{ background: '#000', borderRadius: 99, padding: '3px 6px', display:'inline-flex' }}>
+                <Button variant="dark" size="sm">Узнать цену</Button>
+              </span>
+              <Button variant="primary" size="sm" disabled>Скоро</Button>
+            </div>
+          </div>
+
+          <div>
+            <SL t="Tag" />
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+              <Tag variant="outlined">Острова</Tag>
+              <Tag variant="outlined-gold">VIP</Tag>
+              <Tag variant="filled-gold" active>Fast-Track ✓</Tag>
+              <Tag variant="filled-coral">Закат</Tag>
+              <Tag variant="filled-sea">Пляж</Tag>
+              <span style={{ background: '#0D1741', borderRadius: 99, padding: '3px 7px', display:'inline-flex' }}>
+                <Tag variant="outlined-white">Камрань</Tag>
+              </span>
+              <Tag variant="filled-lime">Инсайдер</Tag>
+            </div>
+          </div>
+
+          <div>
+            <SL t="Card" />
+            <div style={{ display: 'flex', gap: 8 }}>
+              {[
+                { v: 'navy',  label: 'Navy',  title: 'VIP Fast-Track', lc: 'var(--color-gold-500)', tc: '#fff' },
+                { v: 'gold',  label: 'Gold',  title: 'Лучшие цены',   lc: 'rgba(13,23,65,0.5)',  tc: '#0D1741' },
+                { v: 'coral', label: 'Coral', title: 'Трансфер',       lc: 'rgba(255,255,255,.6)', tc: '#fff' },
+                { v: 'sea',   label: 'Sea',   title: 'Острова',        lc: 'rgba(255,255,255,.6)', tc: '#fff' },
+                { v: 'white', label: 'White', title: 'Советы',         lc: '#9090A8',             tc: '#181828' },
+              ].map(({ v, label, title, lc, tc }) => (
+                <Card key={v} variant={v} padding="sm" style={{ flex: 1 }}>
+                  <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: lc, marginBottom: 4 }}>{label}</div>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: tc }}>{title}</div>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

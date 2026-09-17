@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+{% block title %}{{ nav.label }} · Budget{% endblock %}
+{% block body %}
+<div class="month-nav">
+  <a href="/?month={{ nav.prev }}">←</a>
+  <h1>{{ nav.label }}</h1>
+  <a href="/?month={{ nav.next }}">→</a>
+</div>
+
+<section class="headlines">
+  <article>
+    <span>Into 10%</span>
+    <strong>{{ fmt(summary.ten) }}</strong>
+  </article>
+  <article>
+    <span>Managed to save</span>
+    <strong>{{ fmt(summary.saved_local) }}</strong>
+    {% if summary.usd_bought %}
+    <em>+ {{ fmt_usd(summary.usd_bought) }} cash</em>
+    {% endif %}
+  </article>
+  <article>
+    <span>Spent</span>
+    <strong>{{ fmt(summary.spent_local) }}</strong>
+    {% if summary.spent_usd %}
+    <em>+ {{ fmt_usd(summary.spent_usd) }}</em>
+    {% endif %}
+  </article>
+</section>
+
+<p class="muted">Saved = 10% + savings bank + local spent on USD this month. Income {{ fmt(summary.income_gross) }}.</p>
+
+<section class="fx-banner">
+  {% if quote %}
+  <span>USD · {{ quote.source }}</span>
+  <strong>{{ '%.2f'|format(quote.rate) }} RUB</strong>
+  <em>
+    Official rate {{ quote.as_of }}
+    {% if quote.fetched %} · fetched {{ quote.fetched }}{% endif %}
+    {% if held_usd %}
+    · your {{ fmt_usd(held_usd) }} ≈ {{ fmt(held_usd_rub) }}
+    {% endif %}
+  </em>
+  {% else %}
+  <span>USD</span>
+  <strong>—</strong>
+  <em>Could not fetch the CBR rate. Check the Pi has internet.</em>
+  {% endif %}
+</section>
+
+<section class="pots">
+  <div class="pot{% if 'ten' in excluded %} is-excluded{% endif %}">
+    <span>10%</span>
+    <strong>{{ fmt(balances.ten) }}</strong>
+    <em>{{ fmt_usd(balances.ten_usd) }}{% if quote %} ≈ {{ fmt(ten_usd_rub_cents) }}{% endif %}</em>
+  </div>
+  <div class="pot{% if 'savings' in excluded %} is-excluded{% endif %}">
+    <span>Savings</span>
+    <strong>{{ fmt(balances.savings) }}</strong>
+    <em>{{ fmt_usd(balances.savings_usd) }}{% if quote %} ≈ {{ fmt(savings_usd_rub_cents) }}{% endif %}</em>
+  </div>
+  <div class="pot{% if 'daughter' in excluded %} is-excluded{% endif %}">
+    <span>Daughter</span>
+    <strong>{{ fmt(balances.daughter) }}</strong>
+    <em>{{ fmt_usd(balances.daughter_usd) }}{% if quote %} ≈ {{ fmt(daughter_usd_rub_cents) }}{% endif %}</em>
+  </div>
+  <div class="pot{% if 'everyday' in excluded %} is-excluded{% endif %}">
+    <span>Everyday</span>
+    <strong>{{ fmt(balances.everyday) }}</strong>
+  </div>
+  <div class="pot{% if 'usd' in excluded %} is-excluded{% endif %}">
+    <span>USD cash</span>
+    <strong>{{ fmt_usd(balances.usd) }}</strong>
+    {% if quote %}<em>≈ {{ fmt(usd_rub_cents) }}</em>{% endif %}
+  </div>
+</section>
+
+<p class="muted">Counted pots in rubles today: {{ fmt(total_rub) }} (of which saved {{ fmt(saved_stock) }}). Tap an account above to leave it out of the total.</p>
+
+{% macro stock_chart(view) %}
+    <div class="donut-wrap">
+      <svg viewBox="0 0 120 120" class="donut" aria-hidden="true">
+        <g transform="rotate(-90 60 60)">
+          {% for seg in view.segments %}
+            {% if seg.cents %}
+            <circle cx="60" cy="60" r="50" fill="none" stroke="{{ seg.color }}"
+                    stroke-width="16"
+                    stroke-dasharray="{{ seg.dash }} {{ seg.gap }}"
+                    stroke-dashoffset="{{ seg.offset }}"></circle>
+            {% endif %}
+          {% endfor %}
+        </g>
+      </svg>
+      <div class="donut-label">
+        <span>{{ view.label }}</span>
+        <strong>{{ fmt(view.total) }}</strong>
+      </div>
+    </div>
+    <div class="stack" role="img" aria-label="{{ view.label }}">
+      {% for seg in view.segments %}
+        {% if seg.cents %}
+        <div class="stack-seg" style="width: {{ seg.pct }}%; background: {{ seg.color }}"></div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <ul class="legend">
+      {% for seg in view.segments %}
+        {% if seg.cents %}
+        <li>
+          <i style="background: {{ seg.color }}"></i>
+          <span>{% if seg.key in ["usd", "ten_usd", "savings_usd", "daughter_usd"] %}{{ seg.label }} {{ '%.0f'|format(seg.pct) }}% · {{ fmt_usd(balances[seg.key]) }}{% if quote %} ≈ {{ fmt(seg.cents) }}{% endif %}{% else %}{{ seg.label }} {{ '%.0f'|format(seg.pct) }}% · {{ fmt(seg.cents) }}{% endif %}</span>
+        </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+{% endmacro %}
+
+<section class="charts">
+  <article class="chart-card" id="stock">
+    <h2>Where it sits</h2>
+    <div class="tabs tabs-stock" role="tablist" aria-label="Where money sits">
+      {% for view in stock_views %}
+      <button type="button" class="tab{% if loop.first %} is-active{% endif %}" role="tab"
+              aria-selected="{{ 'true' if loop.first else 'false' }}"
+              aria-controls="stock-{{ view.key }}" id="tab-stock-{{ view.key }}"
+              data-tab="{{ view.key }}">{{ view.label }}</button>
+      {% endfor %}
+    </div>
+    {% for view in stock_views %}
+    <div class="tab-panel{% if not loop.first %} hidden{% endif %}" role="tabpanel"
+         id="stock-{{ view.key }}" data-tab="{{ view.key }}"
+         aria-labelledby="tab-stock-{{ view.key }}" {% if not loop.first %}hidden{% endif %}>
+      {{ stock_chart(view) }}
+    </div>
+    {% endfor %}
+  </article>
+
+  <article class="chart-card">
+    <h2>This month’s flow</h2>
+    {% set flow_any = summary.income_gross or summary.spent_local or summary.usd_local %}
+    {% if not flow_any %}
+    <p class="muted">No income, spending, or USD buys recorded this month yet. The chart above is your current stock.</p>
+    {% else %}
+    <div class="stack tall">
+      {% for seg in month_flow %}
+        {% if seg.cents %}
+        <div class="stack-seg" style="width: {{ seg.pct }}%; background: {{ seg.color }}"></div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <ul class="legend">
+      {% for seg in month_flow %}
+        {% if seg.cents %}
+        <li><i style="background: {{ seg.color }}"></i>{{ seg.label }} · {{ fmt(seg.cents) }}</li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+    <div class="flow">
+      <div class="flow-col">
+        <span>In</span>
+        <strong>{{ fmt(summary.income_gross) }}</strong>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-col save">
+        <span>Saved</span>
+        <strong>{{ fmt(summary.saved_local) }}</strong>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-col spend">
+        <span>Spent</span>
+        <strong>{{ fmt(summary.spent_local) }}</strong>
+      </div>
+    </div>
+    {% endif %}
+  </article>
+
+  {% if cat_bars %}
+  <article class="chart-card">
+    <h2>Spending by category</h2>
+    {% for row in cat_bars %}
+    <div class="hbar">
+      <div class="hbar-label">{{ category_label(row.category) }} · {{ fmt(row.amount_cents) }}</div>
+      <div class="hbar-track"><div style="width: {{ row.pct }}%"></div></div>
+    </div>
+    {% endfor %}
+  </article>
+  {% endif %}
+</section>
+
+<div class="actions">
+  <a class="btn" href="/income">Add income</a>
+  <a class="btn secondary" href="/expense">Add expense</a>
+  <a class="btn secondary" href="/sleeves">Add to savings</a>
+</div>
+
+{% if rates %}
+<h2>Your USD rate history</h2>
+{% if rate_chart %}
+<div class="rate-chart">
+  <div class="rate-scale"><span>{{ '%.3f'|format(rate_chart.high) }}</span><span>{{ '%.3f'|format(rate_chart.low) }} RUB/USD</span></div>
+  <svg viewBox="0 0 600 160" role="img" aria-label="Purchase rate history">
+    <polyline points="{{ rate_chart.points }}" />
+  </svg>
+</div>
+{% endif %}
+<section class="rate-grid">
+  {% for row in rates %}
+  <article class="row fx">
+    <div>
+      <strong>{{ '%.3f'|format(row.rate_milli / 1000) }} RUB/USD</strong>
+      <span>{{ pot_label(row.account) }} · {{ fmt_usd(row.usd_cents) }} · {{ row.occurred_on }}</span>
+      <span>{% if row.local_cents %}{{ fmt(row.local_cents) }} paid{% else %}external deposit{% endif %}</span>
+    </div>
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+
+<section class="history" id="history">
+  <div class="tabs" role="tablist" aria-label="History">
+    <button type="button" class="tab is-active" role="tab" aria-selected="true" aria-controls="history-spends" id="tab-spends" data-tab="spends">Spends</button>
+    <button type="button" class="tab" role="tab" aria-selected="false" aria-controls="history-income" id="tab-income" data-tab="income">Income</button>
+  </div>
+
+  <div class="tab-panel" role="tabpanel" id="history-spends" data-tab="spends" aria-labelledby="tab-spends">
+    {% if expenses %}
+      {% for row in expenses %}
+      <a class="row spend" href="/expense/{{ row.id }}">
+        <div>
+          <strong>− {% if row.pot in ["usd", "ten_usd", "savings_usd", "daughter_usd"] %}{{ fmt_usd(row.amount_cents) }}{% else %}{{ fmt(row.amount_cents) }}{% endif %}</strong>
+          <span>{{ pot_label(row.pot) }}{% if row.category %} · {{ category_label(row.category) }}{% endif %} · {{ row.occurred_on }}</span>
+          {% if row.note %}<span>{{ row.note }}</span>{% endif %}
+        </div>
+      </a>
+      {% endfor %}
+    {% else %}
+    <p class="muted">No spending recorded this month.</p>
+    {% endif %}
+  </div>
+
+  <div class="tab-panel hidden" role="tabpanel" id="history-income" data-tab="income" aria-labelledby="tab-income" hidden>
+    {% if incomes %}
+      {% for row in incomes %}
+      <a class="row" href="/income/{{ row.id }}">
+        <div>
+          <strong>{{ fmt(row.gross_cents) }}</strong>
+          <span>{{ source_label(row.source) }} · {{ row.occurred_on }}</span>
+          {% if row.note %}<span>{{ row.note }}</span>{% endif %}
+        </div>
+        <div class="split">
+          10% {{ fmt(row.ten_cents) }} · day {{ fmt(row.everyday_cents) }} · save {{ fmt(row.savings_cents) }}
+        </div>
+      </a>
+      {% endfor %}
+    {% else %}
+    <p class="muted">No income recorded this month.</p>
+    {% endif %}
+    {% for row in deposits %}
+    <article class="row fx">
+      <div>
+        <strong>Added to {{ pot_label(row.account) }}</strong>
+        <span>
+          {% if row.rub_cents %}{{ fmt(row.rub_cents) }}{% endif %}
+          {% if row.rub_cents and row.usd_cents %} + {% endif %}
+          {% if row.usd_cents %}{{ fmt_usd(row.usd_cents) }} at {{ '%.3f'|format(row.rate_milli / 1000) }}{% endif %}
+          · {{ row.occurred_on }}
+        </span>
+        {% if row.note %}<span>{{ row.note }}</span>{% endif %}
+      </div>
+    </article>
+    {% endfor %}
+    {% for row in trades %}
+    <article class="row fx">
+      <div>
+        <strong>{{ fmt_usd(row.usd_cents) }}</strong>
+        <span>bought with {{ fmt(row.local_cents) }} from {{ pot_label(row.from_pot) }} · {{ '%.3f'|format(row.rate_milli / 1000) }} RUB/USD · {{ row.occurred_on }}</span>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+<script>
+  function bindTabs(root) {
+    if (!root) return;
+    const tabs = [...root.querySelectorAll("[role=tab]")];
+    const panels = [...root.querySelectorAll("[role=tabpanel]")];
+    function show(name) {
+      tabs.forEach((tab) => {
+        const on = tab.dataset.tab === name;
+        tab.classList.toggle("is-active", on);
+        tab.setAttribute("aria-selected", on ? "true" : "false");
+      });
+      panels.forEach((panel) => {
+        const on = panel.dataset.tab === name;
+        panel.classList.toggle("hidden", !on);
+        panel.hidden = !on;
+      });
+    }
+    tabs.forEach((tab) => tab.addEventListener("click", () => show(tab.dataset.tab)));
+  }
+  bindTabs(document.getElementById("stock"));
+  bindTabs(document.getElementById("history"));
+</script>
+{% endblock %}

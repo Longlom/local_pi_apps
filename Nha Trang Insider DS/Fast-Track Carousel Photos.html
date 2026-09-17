@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Карусель с фото: Что такое Fast Track — Nha Trang Insider</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #1A1620; min-height: 100vh; font-family: 'Montserrat', sans-serif; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const LOGO = 'assets/logo-circle.png';
+const W = 1080, H = 1350;
+
+// Warm coral OVERLAY gradients (semi-transparent — photos show through)
+const OV = {
+  a: 'linear-gradient(165deg,rgba(140,30,16,0.78) 0%,rgba(220,72,40,0.68) 38%,rgba(210,140,40,0.52) 72%,rgba(245,228,184,0.22) 100%)',
+  b: 'radial-gradient(130% 100% at 75% 0%,rgba(220,140,48,0.65) 0%,rgba(220,70,40,0.72) 45%,rgba(168,32,16,0.84) 100%)',
+  c: 'linear-gradient(195deg,rgba(160,40,24,0.80) 0%,rgba(220,70,40,0.70) 40%,rgba(210,148,48,0.52) 80%,rgba(245,228,184,0.18) 100%)',
+  d: 'linear-gradient(165deg,rgba(100,14,6,0.88) 0%,rgba(180,40,24,0.80) 40%,rgba(220,70,40,0.70) 100%)',
+};
+
+// Unsplash photos — fixed sig= for consistency on reload
+const PHOTOS = [
+  'https://source.unsplash.com/1080x1350/?nha+trang,beach,vietnam&sig=11',
+  'https://source.unsplash.com/1080x1350/?airport,terminal,interior&sig=22',
+  'https://source.unsplash.com/1080x1350/?airport,gate,boarding&sig=33',
+  'https://source.unsplash.com/1080x1350/?airport,crowd,immigration&sig=44',
+  'https://source.unsplash.com/1080x1350/?family,tropical,beach&sig=55',
+  'https://source.unsplash.com/1080x1350/?vietnam,sunset,bay&sig=66',
+];
+
+function Glow() {
+  return (
+    <div style={{ position:'absolute', top:-200, right:-180, width:680, height:680,
+      background:'radial-gradient(circle,rgba(255,230,160,0.30) 0%,rgba(255,200,100,0) 65%)',
+      pointerEvents:'none', zIndex:3 }} />
+  );
+}
+
+const TS = '0 4px 28px rgba(60,10,0,0.55)';
+
+function Kicker({ children, color='rgba(255,255,255,0.96)' }) {
+  return (
+    <div style={{ display:'inline-flex', alignItems:'center', gap:14, background:'rgba(0,0,0,0.32)',
+      backdropFilter:'blur(10px)', WebkitBackdropFilter:'blur(10px)',
+      border:'1.5px solid rgba(255,255,255,0.38)', borderRadius:999, padding:'14px 32px' }}>
+      <span style={{ fontFamily:'Oswald,sans-serif', fontSize:24, fontWeight:600, letterSpacing:'0.18em',
+        textTransform:'uppercase', color }}>{children}</span>
+    </div>
+  );
+}
+
+function Frame({ photo, overlay, num, children }) {
+  return (
+    <div style={{ width:W, height:H, position:'relative', overflow:'hidden', fontFamily:'Montserrat,sans-serif' }}>
+      {/* Photo layer */}
+      <div style={{ position:'absolute', inset:0, backgroundImage:`url('${photo}')`,
+        backgroundSize:'cover', backgroundPosition:'center' }} />
+      {/* Warm overlay */}
+      <div style={{ position:'absolute', inset:0, background:overlay }} />
+      {/* Subtle vignette */}
+      <div style={{ position:'absolute', inset:0,
+        background:'radial-gradient(ellipse at 50% 50%,transparent 40%,rgba(0,0,0,0.30) 100%)' }} />
+      <Glow />
+      <img src={LOGO} alt="" style={{ position:'absolute', top:52, right:52, width:108, height:108,
+        objectFit:'contain', zIndex:4, filter:'drop-shadow(0 6px 20px rgba(0,0,0,0.5))' }} />
+      {/* Progress bars */}
+      <div style={{ position:'absolute', top:80, left:64, display:'flex', gap:8, zIndex:4 }}>
+        {[0,1,2,3,4,5].map(i => (
+          <div key={i} style={{ width:34, height:6, borderRadius:3,
+            background: i < num ? '#fff' : 'rgba(255,255,255,0.30)' }} />
+        ))}
+      </div>
+      <div style={{ position:'relative', zIndex:4, height:'100%' }}>{children}</div>
+    </div>
+  );
+}
+
+// ── SLIDES ────────────────────────────────────────────────
+
+function Slide1() {
+  return (
+    <Frame photo={PHOTOS[0]} overlay={OV.b} num={1}>
+      <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', justifyContent:'center', padding:'0 80px' }}>
+        <div style={{ marginBottom:40 }}><Kicker>VIP-сервис · Камрань</Kicker></div>
+        <div style={{ fontSize:128, fontWeight:900, color:'#fff', lineHeight:0.98, letterSpacing:'-0.03em',
+          textTransform:'uppercase', textShadow:TS, marginBottom:36 }}>Что такое<br/>Fast<br/>Track?</div>
+        <div style={{ fontFamily:'PT Sans,sans-serif', fontSize:40, color:'rgba(255,255,255,0.95)', lineHeight:1.45, maxWidth:760,
+          textShadow:'0 2px 12px rgba(0,0,0,0.4)' }}>
+          Разбираем по полочкам — что это, что входит и кому особенно нужно.
+        </div>
+      </div>
+      <div style={{ position:'absolute', bottom:70, left:80, display:'flex', alignItems:'center', gap:16 }}>
+        <span style={{ fontFamily:'Oswald,sans-serif', fontSize:28, fontWeight:600, letterSpacing:'0.16em',
+          textTransform:'uppercase', color:'#fff', textShadow:TS }}>Листай</span>
+        <span style={{ fontSize:40, color:'#fff' }}>→</span>
+      </div>
+    </Frame>
+  );
+}
+
+function Slide2() {
+  return (
+    <Frame photo={PHOTOS[1]} overlay={OV.a} num={2}>
+      <div style={{ position:'absolute', top:200, left:80, right:80 }}>
+        <div style={{ marginBottom:36 }}><Kicker>Простыми словами</Kicker></div>
+        <div style={{ fontSize:78, fontWeight:900, color:'#fff', lineHeight:1.06, letterSpacing:'-0.02em',
+          textTransform:'uppercase', textShadow:TS }}>Твой личный VIP-проход через аэропорт</div>
+      </div>
+      <div style={{ position:'absolute', bottom:110, left:80, right:80, background:'rgba(0,0,0,0.42)',
+        backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)', borderRadius:32,
+        border:'1.5px solid rgba(255,255,255,0.30)', padding:'48px 52px' }}>
+        <div style={{ fontFamily:'PT Sans,sans-serif', fontSize:42, color:'#fff', lineHeight:1.5 }}>
+          Персональный сопровождающий встречает тебя <b style={{ color:'#F5C200' }}>прямо у трапа</b> и проводит через все формальности по отдельному коридору — мимо общих очередей.
+        </div>
+      </div>
+    </Frame>
+  );
+}
+
+function Slide3() {
+  const items = [
+    ['🛬','Встреча у трапа самолёта с табличкой'],
+    ['🛂','Отдельный коридор на паспортном контроле'],
+    ['🧳','Помощь с багажом и тележкой'],
+    ['🚐','Сопровождение до выхода или трансфера'],
+  ];
+  return (
+    <Frame photo={PHOTOS[2]} overlay={OV.c} num={3}>
+      <div style={{ position:'absolute', top:200, left:80, right:80 }}>
+        <div style={{ marginBottom:32 }}><Kicker>Что входит</Kicker></div>
+        <div style={{ fontSize:96, fontWeight:900, color:'#fff', lineHeight:1, letterSpacing:'-0.02em',
+          textTransform:'uppercase', textShadow:TS }}>Всё включено</div>
+      </div>
+      <div style={{ position:'absolute', bottom:96, left:80, right:80, display:'flex', flexDirection:'column', gap:20 }}>
+        {items.map(([e,t],i) => (
+          <div key={i} style={{ display:'flex', alignItems:'center', gap:28, background:'rgba(255,255,255,0.90)',
+            borderRadius:24, padding:'30px 36px', boxShadow:'0 8px 32px rgba(0,0,0,0.3)' }}>
+            <span style={{ fontSize:52, flexShrink:0 }}>{e}</span>
+            <span style={{ fontFamily:'PT Sans,sans-serif', fontSize:38, fontWeight:700, color:'#0D1741', lineHeight:1.25 }}>{t}</span>
+          </div>
+        ))}
+      </div>
+    </Frame>
+  );
+}
+
+function Slide4() {
+  return (
+    <Frame photo={PHOTOS[3]} overlay={OV.d} num={4}>
+      <div style={{ position:'absolute', top:200, left:80, right:80 }}>
+        <div style={{ marginBottom:32 }}><Kicker>Экономия времени</Kicker></div>
+        <div style={{ fontSize:92, fontWeight:900, color:'#fff', lineHeight:1, letterSpacing:'-0.02em',
+          textTransform:'uppercase', textShadow:TS }}>Почувствуй разницу</div>
+      </div>
+      <div style={{ position:'absolute', bottom:120, left:80, right:80, display:'flex', flexDirection:'column', gap:24 }}>
+        <div style={{ background:'rgba(0,0,0,0.48)', borderRadius:28, padding:'40px 44px',
+          backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)',
+          border:'1.5px solid rgba(255,255,255,0.18)' }}>
+          <div style={{ fontFamily:'Oswald,sans-serif', fontSize:26, fontWeight:500, letterSpacing:'0.14em',
+            textTransform:'uppercase', color:'rgba(255,255,255,0.60)', marginBottom:10 }}>Без Fast Track</div>
+          <div style={{ fontSize:72, fontWeight:900, color:'#fff', lineHeight:1, textShadow:TS }}>до 3 часов <span style={{ fontSize:36, fontWeight:600, color:'rgba(255,255,255,0.65)' }}>в очередях</span></div>
+        </div>
+        <div style={{ background:'linear-gradient(135deg,#A87210 0%,#C9941A 30%,#E8C86A 60%,#C9941A 100%)', borderRadius:28, padding:'40px 44px',
+          boxShadow:'0 16px 48px rgba(201,148,26,0.50)' }}>
+          <div style={{ fontFamily:'Oswald,sans-serif', fontSize:26, fontWeight:600, letterSpacing:'0.14em',
+            textTransform:'uppercase', color:'rgba(13,23,65,0.60)', marginBottom:10 }}>С Fast Track</div>
+          <div style={{ fontSize:72, fontWeight:900, color:'#0D1741', lineHeight:1 }}>15 минут <span style={{ fontSize:36, fontWeight:600, color:'rgba(13,23,65,0.60)' }}>— и ты свободен</span></div>
+        </div>
+      </div>
+    </Frame>
+  );
+}
+
+function Slide5() {
+  const items = [
+    ['👨‍👩‍👧','Летишь с детьми'],
+    ['😴','После долгого перелёта'],
+    ['🔥','В пик сезона (дек–март)'],
+    ['⏱','Когда время дороже денег'],
+  ];
+  return (
+    <Frame photo={PHOTOS[4]} overlay={OV.a} num={5}>
+      <div style={{ position:'absolute', top:200, left:80, right:80 }}>
+        <div style={{ marginBottom:32 }}><Kicker>Кому особенно нужно</Kicker></div>
+        <div style={{ fontSize:88, fontWeight:900, color:'#fff', lineHeight:1.02, letterSpacing:'-0.02em',
+          textTransform:'uppercase', textShadow:TS }}>Это про тебя, если…</div>
+      </div>
+      <div style={{ position:'absolute', bottom:110, left:80, right:80, display:'grid', gridTemplateColumns:'1fr 1fr', gap:22 }}>
+        {items.map(([e,t],i) => (
+          <div key={i} style={{ background:'rgba(0,0,0,0.46)', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)',
+            border:'1.5px solid rgba(255,255,255,0.28)', borderRadius:26, padding:'34px 30px',
+            display:'flex', flexDirection:'column', gap:18, minHeight:230, justifyContent:'center' }}>
+            <span style={{ fontSize:64 }}>{e}</span>
+            <span style={{ fontFamily:'PT Sans,sans-serif', fontSize:36, fontWeight:700, color:'#fff', lineHeight:1.2 }}>{t}</span>
+          </div>
+        ))}
+      </div>
+    </Frame>
+  );
+}
+
+function Slide6() {
+  return (
+    <Frame photo={PHOTOS[5]} overlay={OV.b} num={6}>
+      <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center',
+        justifyContent:'center', padding:'0 80px', textAlign:'center' }}>
+        <img src={LOGO} alt="" style={{ width:220, height:220, objectFit:'contain', marginBottom:44,
+          filter:'drop-shadow(0 12px 40px rgba(0,0,0,0.55))' }} />
+        <div style={{ fontSize:84, fontWeight:900, color:'#fff', lineHeight:1.04, letterSpacing:'-0.02em',
+          textTransform:'uppercase', textShadow:TS, marginBottom:32 }}>Закажи Fast Track заранее</div>
+        <div style={{ fontFamily:'PT Sans,sans-serif', fontSize:40, color:'rgba(255,255,255,0.95)', lineHeight:1.45, maxWidth:800, marginBottom:52,
+          textShadow:'0 2px 12px rgba(0,0,0,0.35)' }}>
+          Напиши нам в Direct — забронируем твой VIP-проход на нужную дату и рейс.
+        </div>
+        <div style={{ display:'inline-flex', alignItems:'center', gap:18,
+          background:'linear-gradient(135deg,#A87210 0%,#C9941A 30%,#E8C86A 60%,#C9941A 100%)',
+          borderRadius:999, padding:'30px 60px', boxShadow:'0 16px 52px rgba(201,148,26,0.55)' }}>
+          <span style={{ fontFamily:'Montserrat,sans-serif', fontSize:38, fontWeight:800, letterSpacing:'0.04em',
+            textTransform:'uppercase', color:'#0D1741' }}>Написать в Direct</span>
+          <span style={{ fontSize:40, color:'#0D1741' }}>→</span>
+        </div>
+        <div style={{ position:'absolute', bottom:70, fontFamily:'Oswald,sans-serif', fontSize:30, fontWeight:500,
+          letterSpacing:'0.16em', color:'rgba(255,255,255,0.9)', textShadow:'0 2px 8px rgba(0,0,0,0.4)' }}>@nhatrang.insider</div>
+      </div>
+    </Frame>
+  );
+}
+
+const SLIDES = [Slide1, Slide2, Slide3, Slide4, Slide5, Slide6];
+
+// ── VIEWER ────────────────────────────────────────────────
+
+function App() {
+  const [idx, setIdx] = React.useState(() => {
+    const s = parseInt(localStorage.getItem('ftc-photo-slide'));
+    return Number.isInteger(s) && s >= 0 && s < SLIDES.length ? s : 0;
+  });
+  React.useEffect(() => { localStorage.setItem('ftc-photo-slide', String(idx)); }, [idx]);
+  React.useEffect(() => {
+    const h = (e) => {
+      if (e.key === 'ArrowRight') setIdx(i => Math.min(i+1, SLIDES.length-1));
+      if (e.key === 'ArrowLeft')  setIdx(i => Math.max(i-1, 0));
+    };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, []);
+
+  const Active = SLIDES[idx];
+  const DISP = 0.4148;
+
+  const arrowBtn = (dir, disabled, onClick) => (
+    <button onClick={onClick} disabled={disabled} style={{
+      width:56, height:56, borderRadius:'50%', border:'none', cursor:disabled?'default':'pointer',
+      background:disabled?'rgba(255,255,255,0.07)':'rgba(255,255,255,0.95)',
+      color:disabled?'rgba(255,255,255,0.25)':'#0D1741',
+      fontSize:24, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center',
+      boxShadow:disabled?'none':'0 4px 20px rgba(0,0,0,0.4)', transition:'200ms ease', flexShrink:0 }}>
+      {dir==='left'?'‹':'›'}
+    </button>
+  );
+
+  return (
+    <div style={{ minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', padding:'28px 20px 40px' }}>
+      {/* Header */}
+      <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:24 }}>
+        <img src={LOGO} alt="" style={{ width:40, height:40, objectFit:'contain' }} />
+        <div>
+          <div style={{ fontSize:10, fontWeight:700, letterSpacing:'0.2em', textTransform:'uppercase', color:'#E0A040' }}>Карусель · Версия с фото</div>
+          <div style={{ fontSize:18, fontWeight:800, color:'#fff' }}>Что такое Fast Track</div>
+        </div>
+        <div style={{ marginLeft:16, padding:'6px 14px', borderRadius:999, background:'rgba(255,255,255,0.1)',
+          fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.7)' }}>{idx+1} / {SLIDES.length}</div>
+      </div>
+
+      {/* Stage */}
+      <div style={{ display:'flex', alignItems:'center', gap:24 }}>
+        {arrowBtn('left', idx===0, () => setIdx(i => Math.max(i-1,0)))}
+        <div style={{ width:W*DISP, height:H*DISP, borderRadius:22, overflow:'hidden',
+          boxShadow:'0 32px 100px rgba(0,0,0,0.6)' }}>
+          <div style={{ width:W, height:H, transform:`scale(${DISP})`, transformOrigin:'top left', pointerEvents:'none' }}>
+            <Active />
+          </div>
+        </div>
+        {arrowBtn('right', idx===SLIDES.length-1, () => setIdx(i => Math.min(i+1,SLIDES.length-1)))}
+      </div>
+
+      {/* Dots */}
+      <div style={{ display:'flex', gap:10, marginTop:24 }}>
+        {SLIDES.map((_,i) => (
+          <button key={i} onClick={() => setIdx(i)} style={{ width:i===idx?28:10, height:10, borderRadius:5,
+            border:'none', cursor:'pointer', background:i===idx?'#E8583A':'rgba(255,255,255,0.20)',
+            transition:'200ms ease' }} />
+        ))}
+      </div>
+
+      {/* Thumbnails */}
+      <div style={{ display:'flex', gap:12, marginTop:28, flexWrap:'wrap', justifyContent:'center', maxWidth:760 }}>
+        {SLIDES.map((S,i) => (
+          <div key={i} onClick={() => setIdx(i)} style={{ cursor:'pointer', width:96, height:120, borderRadius:10,
+            overflow:'hidden', outline:i===idx?'3px solid #E8583A':'1px solid rgba(255,255,255,0.12)',
+            transition:'200ms ease', flexShrink:0 }}>
+            <div style={{ width:W, height:H, transform:`scale(${96/W})`, transformOrigin:'top left', pointerEvents:'none' }}>
+              <S />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ marginTop:24, fontSize:12, color:'rgba(255,255,255,0.35)', fontFamily:'PT Sans,sans-serif', textAlign:'center' }}>
+        Фото: Unsplash · 1080 × 1350 (4:5) · ← → для навигации<br/>
+        <span style={{ opacity:0.7 }}>Замени на собственные фото Нья Чанга для финальной версии</span>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

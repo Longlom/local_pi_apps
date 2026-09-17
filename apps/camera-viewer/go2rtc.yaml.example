@@ -1,0 +1,19 @@
+# Generated from config.env by run.sh. Edit config.env instead of this file.
+api:
+  listen: ":1984"
+  origin: "*"
+  static_dir: "./www"
+
+rtsp:
+  listen: ":8554"
+
+webrtc:
+  listen: ":8555"
+  candidates:
+    - 192.168.3.42:8555
+
+streams:
+  cam:
+    - "ffmpeg:rtsp://192.168.3.27:554/live/ch00_0#video=copy#audio=aac"
+    - "ffmpeg:cam#audio=opus"
+    - "ffmpeg:cam#video=mjpeg"

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}{% if entry %}Edit income{% else %}Add income{% endif %}{% endblock %}
+{% block body %}
+<h1>{% if entry %}Edit income{% else %}Add income{% endif %}</h1>
+<form method="post" action="{% if entry %}/income/{{ entry.id }}{% else %}/income{% endif %}" id="income-form">
+  <label>Date
+    <input type="date" name="occurred_on" value="{{ entry.occurred_on if entry else today }}" required />
+  </label>
+  <label>Source
+    <select name="source">
+      <option value="job_5" {% if entry and entry.source == "job_5" %}selected{% endif %}>Job — 5th</option>
+      <option value="job_20" {% if entry and entry.source == "job_20" %}selected{% endif %}>Job — 20th</option>
+      <option value="extra" {% if entry and entry.source == "extra" %}selected{% endif %}>Extra</option>
+    </select>
+  </label>
+  <label>Gross ({{ base_currency }})
+    <input type="text" inputmode="decimal" name="gross" id="gross" required placeholder="0.00"
+           value="{{ field(entry.gross_cents) if entry else '' }}" />
+  </label>
+  <label>10% pot
+    <input type="text" inputmode="decimal" name="ten" id="ten" required
+           value="{{ field(entry.ten_cents) if entry else '' }}" />
+  </label>
+  <label>Everyday
+    <input type="text" inputmode="decimal" name="everyday" id="everyday" required
+           value="{{ field(entry.everyday_cents) if entry else '' }}" />
+  </label>
+  <label>Savings bank
+    <input type="text" inputmode="decimal" name="savings" id="savings" required
+           value="{{ field(entry.savings_cents) if entry else '' }}" />
+  </label>
+  <p class="muted" id="split-hint">10% + everyday + savings must equal gross.</p>
+  <label>Note
+    <input type="text" name="note" maxlength="200" value="{{ entry.note if entry else '' }}" />
+  </label>
+  <button type="submit" class="btn">{% if entry %}Save changes{% else %}Save income{% endif %}</button>
+</form>
+<script>
+  const gross = document.getElementById("gross");
+  const ten = document.getElementById("ten");
+  const everyday = document.getElementById("everyday");
+  const savings = document.getElementById("savings");
+  const hint = document.getElementById("split-hint");
+  const editing = {{ "true" if entry else "false" }};
+
+  function num(el) {
+    return parseFloat((el.value || "0").replace(",", ".")) || 0;
+  }
+  function money(n) {
+    return n.toFixed(2);
+  }
+  async function fillTen() {
+    const res = await fetch("/api/ten-percent?gross=" + encodeURIComponent(gross.value || "0"));
+    const data = await res.json();
+    ten.value = money(data.ten / 100);
+    const rest = data.rest / 100;
+    if (!everyday.value) everyday.value = money(rest);
+    syncHint();
+  }
+  function syncHint() {
+    const g = num(gross);
+    const sum = num(ten) + num(everyday) + num(savings);
+    const diff = Math.round((g - sum) * 100) / 100;
+    if (!g) {
+      hint.textContent = "10% + everyday + savings must equal gross.";
+      return;
+    }
+    if (diff === 0) hint.textContent = "Split adds up.";
+    else hint.textContent = "Off by " + money(diff) + " (positive = leftover to assign).";
+  }
+  if (!editing) {
+    gross.addEventListener("change", fillTen);
+    gross.addEventListener("blur", fillTen);
+  }
+  [ten, everyday, savings, gross].forEach((el) => el.addEventListener("input", syncHint));
+  syncHint();
+</script>
+{% endblock %}

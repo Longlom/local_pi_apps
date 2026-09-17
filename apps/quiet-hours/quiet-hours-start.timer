@@ -1,0 +1,10 @@
+[Unit]
+Description=Start quiet hours at 01:00
+
+[Timer]
+OnCalendar=*-*-* 01:00:00
+Persistent=false
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

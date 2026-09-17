@@ -1,0 +1,58 @@
+<!-- @dsCard group="Brand" viewport="700x380" name="Content Styles" subtitle="3 established post styles + 1 new warm direction" -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-display); background: #EEEEF4; padding: 16px; display: flex; gap: 12px; height: 380px; }
+    .post { flex: 1; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 14px; position: relative; }
+    .post-img { position: absolute; inset: 0; background-size: cover; background-position: center; }
+    .post-overlay { position: absolute; inset: 0; }
+    .post-content { position: relative; z-index: 2; }
+    .style-tag { font-size: 7.5px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 6px; opacity: 0.7; }
+    .post-title { font-size: 13px; font-weight: 800; line-height: 1.2; letter-spacing: -0.01em; text-transform: uppercase; }
+    .post-sub { font-size: 9px; font-weight: 500; margin-top: 4px; opacity: 0.7; letter-spacing: 0.04em; }
+  </style>
+</head>
+<body>
+  <!-- Style 1: Viral Dark -->
+  <div class="post" style="background: #0A0A0A">
+    <div class="post-content">
+      <div class="style-tag" style="color: var(--color-lime-500)">Вирусный / Dark</div>
+      <div class="post-title" style="color: var(--color-lime-500); font-size: 15px">Сколько денег брать во Вьетнам?</div>
+      <div class="post-sub" style="color: #fff">Разберём по пунктам</div>
+    </div>
+  </div>
+  <!-- Style 2: Premium Navy -->
+  <div class="post" style="background: var(--gradient-navy)">
+    <div class="post-content">
+      <div class="style-tag" style="color: var(--color-gold-300)">Премиум / Navy</div>
+      <div style="width: 100%; height: 2px; background: var(--color-gold-500); margin-bottom: 8px; border-radius: 1px;"></div>
+      <div class="post-title" style="color: #fff; font-size: 14px">⏱ Сколько стоят в очереди в Камрань?</div>
+      <div class="post-sub" style="color: var(--color-gold-300)">Реальные цифры по сезонам</div>
+    </div>
+  </div>
+  <!-- Style 3: Tropical -->
+  <div class="post" style="background: var(--gradient-sea)">
+    <div style="position:absolute;top:14px;left:14px;right:14px;z-index:2">
+      <div style="background:var(--color-amber-500);border-radius:10px;padding:10px 12px">
+        <div class="post-title" style="color:#0D1741;font-size:13px">Острова Нячанга: Какой выбрать?</div>
+      </div>
+    </div>
+    <div class="post-content">
+      <div class="style-tag" style="color: rgba(255,255,255,.65)">Тропик / Info</div>
+      <div class="post-sub" style="color:#fff">🌊 Винперл · Хон Мун · Хон Там</div>
+    </div>
+  </div>
+  <!-- Style 4: New Warm Direction -->
+  <div class="post" style="background: var(--gradient-sunset)">
+    <div class="post-content">
+      <div class="style-tag" style="color: rgba(255,255,255,.75)">Новое / Тёплый закат</div>
+      <div class="post-title" style="color: #fff; font-size: 14px">Fast-Track в Камрань — как это работает?</div>
+      <div class="post-sub" style="color: rgba(255,255,255,.8)">VIP проход без очереди</div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!-- @dsCard group="Spacing" viewport="700x210" name="Spacing Scale" subtitle="4px base unit — 13 steps from 4px to 128px" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-display); background: #FAFAFA; padding: 18px 18px 14px; }
+    .list { display: flex; flex-direction: column; gap: 5px; }
+    .item { display: flex; align-items: center; gap: 10px; }
+    .bar-wrap { flex: 1; }
+    .bar { height: 12px; border-radius: 3px; background: var(--gradient-navy); }
+    .lbl { min-width: 52px; font-size: 9px; font-weight: 700; color: var(--color-navy-900); letter-spacing: 0.04em; font-family: 'Courier New', monospace; text-align: right; }
+    .px  { min-width: 32px; font-size: 8.5px; color: #9090A8; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="list">
+    <div class="item"><span class="lbl">--space-1</span><div class="bar-wrap"><div class="bar" style="width:4px"></div></div><span class="px">4px</span></div>
+    <div class="item"><span class="lbl">--space-2</span><div class="bar-wrap"><div class="bar" style="width:8px"></div></div><span class="px">8px</span></div>
+    <div class="item"><span class="lbl">--space-3</span><div class="bar-wrap"><div class="bar" style="width:12px"></div></div><span class="px">12px</span></div>
+    <div class="item"><span class="lbl">--space-4</span><div class="bar-wrap"><div class="bar" style="width:16px"></div></div><span class="px">16px</span></div>
+    <div class="item"><span class="lbl">--space-5</span><div class="bar-wrap"><div class="bar" style="width:20px"></div></div><span class="px">20px</span></div>
+    <div class="item"><span class="lbl">--space-6</span><div class="bar-wrap"><div class="bar" style="width:24px"></div></div><span class="px">24px</span></div>
+    <div class="item"><span class="lbl">--space-8</span><div class="bar-wrap"><div class="bar" style="width:32px"></div></div><span class="px">32px</span></div>
+    <div class="item"><span class="lbl">--space-10</span><div class="bar-wrap"><div class="bar" style="width:40px"></div></div><span class="px">40px</span></div>
+    <div class="item"><span class="lbl">--space-12</span><div class="bar-wrap"><div class="bar" style="width:48px"></div></div><span class="px">48px</span></div>
+    <div class="item"><span class="lbl">--space-16</span><div class="bar-wrap"><div class="bar" style="width:64px"></div></div><span class="px">64px</span></div>
+    <div class="item"><span class="lbl">--space-20</span><div class="bar-wrap"><div class="bar" style="width:80px"></div></div><span class="px">80px</span></div>
+    <div class="item"><span class="lbl">--space-24</span><div class="bar-wrap"><div class="bar" style="width:96px"></div></div><span class="px">96px</span></div>
+  </div>
+</body>
+</html>

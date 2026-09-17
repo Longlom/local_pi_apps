@@ -1,0 +1,44 @@
+/* ============================================================
+   NHA TRANG INSIDER — Typography Tokens (self-hosted fonts)
+   Fonts are served from /static/fonts so the app works offline.
+   ============================================================ */
+
+:root {
+
+  /* --- Font Families --- */
+  --font-display: 'Montserrat', sans-serif;
+  --font-body:    'PT Sans', sans-serif;
+  --font-label:   'Oswald', sans-serif;
+
+  /* --- Font Sizes --- */
+  --font-size-2xs:  0.625rem;   /*  10px */
+  --font-size-xs:   0.75rem;    /*  12px */
+  --font-size-sm:   0.875rem;   /*  14px */
+  --font-size-base: 1rem;       /*  16px */
+  --font-size-md:   1.125rem;   /*  18px */
+  --font-size-lg:   1.375rem;   /*  22px */
+  --font-size-xl:   1.75rem;    /*  28px */
+  --font-size-2xl:  2.25rem;    /*  36px */
+  --font-size-3xl:  3rem;       /*  48px */
+
+  /* --- Font Weights --- */
+  --font-weight-regular:   400;
+  --font-weight-medium:    500;
+  --font-weight-semibold:  600;
+  --font-weight-bold:      700;
+  --font-weight-extrabold: 800;
+  --font-weight-black:     900;
+
+  /* --- Line Heights --- */
+  --line-height-tight:   1.1;
+  --line-height-snug:    1.25;
+  --line-height-normal:  1.5;
+  --line-height-relaxed: 1.7;
+
+  /* --- Letter Spacing --- */
+  --letter-spacing-tight:   -0.03em;
+  --letter-spacing-normal:   0em;
+  --letter-spacing-wide:     0.05em;
+  --letter-spacing-wider:    0.12em;
+  --letter-spacing-widest:   0.22em;
+}

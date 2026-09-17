@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Buy USD{% endblock %}
+{% block body %}
+<h1>Buy USD</h1>
+<p class="muted">This is a conversion into savings, not spending.</p>
+{% if quote %}
+<p class="muted">CBR / market now: <strong>{{ '%.2f'|format(quote.rate) }} RUB/USD</strong> · {{ quote.source }} {{ quote.as_of }}</p>
+{% endif %}
+<form method="post" action="/usd" id="usd-form">
+  <label>Date
+    <input type="date" name="occurred_on" value="{{ today }}" required />
+  </label>
+  <input type="hidden" name="from_pot" value="everyday" />
+  <p class="muted">Paid from Everyday. For 10%, Savings, or Daughter USD, use <a href="/sleeves">Save</a>.</p>
+  <label>Spent ({{ base_currency }})
+    <input type="text" inputmode="decimal" name="local_spent" id="local_spent" required />
+  </label>
+  <label>USD received
+    <input type="text" inputmode="decimal" name="usd_got" id="usd_got" required />
+  </label>
+  <p class="muted" id="rate-hint">Rate appears after both amounts.</p>
+  <label>Note
+    <input type="text" name="note" maxlength="200" />
+  </label>
+  <button type="submit" class="btn">Save</button>
+</form>
+<script>
+  const local = document.getElementById("local_spent");
+  const usd = document.getElementById("usd_got");
+  const hint = document.getElementById("rate-hint");
+  function n(el) { return parseFloat((el.value || "0").replace(",", ".")) || 0; }
+  function rate() {
+    const u = n(usd), l = n(local);
+    if (u > 0 && l > 0) hint.textContent = "Rate ≈ " + (l / u).toFixed(2) + " {{ base_currency }}/USD";
+    else hint.textContent = "Rate appears after both amounts.";
+  }
+  local.addEventListener("input", rate);
+  usd.addEventListener("input", rate);
+</script>
+{% endblock %}

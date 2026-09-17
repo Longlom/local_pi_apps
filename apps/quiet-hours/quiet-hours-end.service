@@ -1,0 +1,8 @@
+[Unit]
+Description=Leave Pi quiet hours (restore LAN apps and HDMI)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/rasp/apps/quiet-hours/quiet-hours.sh end

@@ -1,0 +1,15 @@
+[Unit]
+Description=RTSP camera web viewer (go2rtc)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/rasp/apps/camera-viewer
+ExecStart=/opt/rasp/apps/camera-viewer/run.sh
+Restart=always
+RestartSec=3
+# Logs go to journald (journalctl -u camera-viewer)
+
+[Install]
+WantedBy=multi-user.target

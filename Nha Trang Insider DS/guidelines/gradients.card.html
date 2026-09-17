@@ -1,0 +1,41 @@
+<!-- @dsCard group="Colors" viewport="700x220" name="Gradients" subtitle="Named gradient tokens for backgrounds, overlays and CTAs" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-display); background: #EEEEF4; padding: 12px 14px; display: flex; flex-direction: column; gap: 5px; }
+    .strip { height: 26px; border-radius: 8px; display: flex; align-items: center; padding: 0 12px; justify-content: space-between; }
+    .name { font-size: 9px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+    .var  { font-size: 8.5px; font-weight: 600; letter-spacing: 0.05em; opacity: 0.75; font-family: 'Courier New', monospace; }
+  </style>
+</head>
+<body>
+  <div class="strip" style="background:var(--gradient-navy)">
+    <span class="name" style="color:#fff">Navy</span>
+    <span class="var" style="color:#E8C86A">--gradient-navy</span>
+  </div>
+  <div class="strip" style="background:var(--gradient-gold)">
+    <span class="name" style="color:#0D1741">Gold · Metallic</span>
+    <span class="var" style="color:#0D1741">--gradient-gold</span>
+  </div>
+  <div class="strip" style="background:var(--gradient-sunset)">
+    <span class="name" style="color:#fff">Sunset</span>
+    <span class="var" style="color:rgba(255,255,255,.75)">--gradient-sunset</span>
+  </div>
+  <div class="strip" style="background:var(--gradient-sea)">
+    <span class="name" style="color:#fff">Deep Sea</span>
+    <span class="var" style="color:rgba(255,255,255,.75)">--gradient-sea</span>
+  </div>
+  <div class="strip" style="background:var(--gradient-beach)">
+    <span class="name" style="color:#0D1741">Beach</span>
+    <span class="var" style="color:rgba(13,23,65,.7)">--gradient-beach</span>
+  </div>
+  <div class="strip" style="background:var(--gradient-tropical)">
+    <span class="name" style="color:#fff">Tropical</span>
+    <span class="var" style="color:rgba(255,255,255,.75)">--gradient-tropical</span>
+  </div>
+</body>
+</html>

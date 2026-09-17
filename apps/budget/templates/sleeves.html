@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Add to saved accounts{% endblock %}
+{% block body %}
+<h1>Add to saved accounts</h1>
+<p class="muted">Keep the RUB and USD parts of 10%, Savings, and Daughter separate, with your actual purchase rate.</p>
+{% if quote %}
+<p class="muted">CBR / market now: <strong>{{ '%.2f'|format(quote.rate) }} RUB/USD</strong> · {{ quote.source }} {{ quote.as_of }}</p>
+{% endif %}
+<form method="post" action="/sleeves" id="sleeve-form">
+  <label>Date
+    <input type="date" name="occurred_on" value="{{ today }}" required />
+  </label>
+  <label>Account
+    <select name="account">
+      <option value="ten" {% if account == "ten" %}selected{% endif %}>10%</option>
+      <option value="savings" {% if account == "savings" %}selected{% endif %}>Savings</option>
+      <option value="daughter" {% if account == "daughter" %}selected{% endif %}>Daughter</option>
+    </select>
+  </label>
+  <label>How was USD added?
+    <select name="mode" id="mode">
+      <option value="deposit">Deposit RUB and/or USD</option>
+      <option value="conversion">Buy USD from this account's RUB</option>
+    </select>
+  </label>
+  <label><span id="rub-label">RUB added</span>
+    <input type="text" inputmode="decimal" name="rub_amount" id="rub_amount" placeholder="0.00" />
+  </label>
+  <label>USD added / received
+    <input type="text" inputmode="decimal" name="usd_amount" id="usd_amount" placeholder="0.00" />
+  </label>
+  <label>Purchase rate (RUB per USD)
+    <input type="text" inputmode="decimal" name="rate" id="rate" placeholder="0.000" />
+  </label>
+  <p class="muted" id="rate-hint">A rate is required when USD is entered.</p>
+  <label>Note
+    <input type="text" name="note" maxlength="200" />
+  </label>
+  <button type="submit" class="btn">Save</button>
+</form>
+
+{% if rates %}
+<h2>Your rate history</h2>
+{% if rate_chart %}
+<div class="rate-chart">
+  <div class="rate-scale"><span>{{ '%.3f'|format(rate_chart.high) }}</span><span>{{ '%.3f'|format(rate_chart.low) }} RUB/USD</span></div>
+  <svg viewBox="0 0 600 160" role="img" aria-label="Purchase rate history">
+    <polyline points="{{ rate_chart.points }}" />
+  </svg>
+</div>
+{% endif %}
+<div class="rate-history">
+  {% for row in rates %}
+  <article class="row fx">
+    <div>
+      <strong>{{ '%.3f'|format(row.rate_milli / 1000) }} RUB/USD</strong>
+      <span>{{ pot_label(row.account) }} · {{ fmt_usd(row.usd_cents) }} · {{ row.occurred_on }}</span>
+      <span>{% if row.local_cents %}{{ fmt(row.local_cents) }} paid{% else %}external deposit{% endif %}</span>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% endif %}
+
+<script>
+  const mode = document.getElementById("mode");
+  const rub = document.getElementById("rub_amount");
+  const usd = document.getElementById("usd_amount");
+  const rateInput = document.getElementById("rate");
+  const rubLabel = document.getElementById("rub-label");
+  const hint = document.getElementById("rate-hint");
+  function n(el) { return parseFloat((el.value || "0").replace(",", ".")) || 0; }
+  function syncMode() {
+    rubLabel.textContent = mode.value === "conversion" ? "RUB spent" : "RUB added";
+    hint.textContent = mode.value === "conversion"
+      ? "For a conversion, fill any two amounts and the third is calculated."
+      : "RUB added is separate; enter the purchase rate for any USD added.";
+  }
+  function showRate() {
+    const shown = n(rateInput);
+    hint.textContent = shown > 0 ? "Recorded rate: " + shown.toFixed(3) + " RUB/USD" : "A rate is required when USD is entered.";
+  }
+  function fromRub() {
+    const r = n(rub), u = n(usd), x = n(rateInput);
+    if (mode.value === "conversion" && r > 0 && u > 0) rateInput.value = (r / u).toFixed(3);
+    else if (mode.value === "conversion" && r > 0 && x > 0) usd.value = (r / x).toFixed(2);
+    showRate();
+  }
+  function fromUsd() {
+    const r = n(rub), u = n(usd);
+    if (mode.value === "conversion" && r > 0 && u > 0) rateInput.value = (r / u).toFixed(3);
+    showRate();
+  }
+  function fromRate() {
+    const r = n(rub), u = n(usd), x = n(rateInput);
+    if (mode.value === "conversion" && x > 0 && u > 0) rub.value = (x * u).toFixed(2);
+    else if (mode.value === "conversion" && x > 0 && r > 0) usd.value = (r / x).toFixed(2);
+    showRate();
+  }
+  mode.addEventListener("change", syncMode);
+  rub.addEventListener("input", fromRub);
+  usd.addEventListener("input", fromUsd);
+  rateInput.addEventListener("input", fromRate);
+  syncMode();
+</script>
+{% endblock %}

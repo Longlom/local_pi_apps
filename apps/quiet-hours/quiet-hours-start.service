@@ -1,0 +1,7 @@
+[Unit]
+Description=Enter Pi quiet hours (stop LAN apps, blank HDMI)
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/rasp/apps/quiet-hours/quiet-hours.sh start
