@@ -201,6 +201,79 @@ class BudgetDbTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             db.toggle_excluded_account(self.conn, "nope")
 
+    def test_month_saved_details_lists_all_parts(self):
+        db.add_income(
+            self.conn, "2026-09-05", 10000, "job_5", "", 1000, 5000, 4000
+        )
+        db.add_transfer(self.conn, "2026-09-10", "daughter", 2000, "")
+        db.add_fx(self.conn, "2026-09-12", "everyday", 3000, 30, "")
+        items = db.month_saved_details(
+            self.conn, "2026-09-01", "2026-09-30"
+        )
+        kinds = {item["kind"] for item in items}
+        self.assertEqual(kinds, {"income_ten", "income_savings", "transfer", "usd_buy"})
+        self.assertEqual(
+            sum(item["amount_cents"] for item in items),
+            1000 + 4000 + 2000 + 3000,
+        )
+        ten_only = db.month_ten_details(self.conn, "2026-09-01", "2026-09-30")
+        self.assertEqual(len(ten_only), 1)
+        self.assertEqual(ten_only[0]["amount_cents"], 1000)
+
+    def test_monthly_flow_history_accumulates(self):
+        db.add_income(
+            self.conn, "2026-08-20", 10000, "job_20", "", 1000, 5000, 4000
+        )
+        db.add_income(
+            self.conn, "2026-09-20", 20000, "job_20", "", 2000, 8000, 10000
+        )
+        db.add_expense(
+            self.conn, "2026-09-21", "everyday", 1500, "food", "", False
+        )
+        history = db.monthly_flow_history(self.conn)
+        self.assertEqual(len(history), 2)
+        aug, sep = history
+        self.assertEqual(aug["ym"], "2026-08")
+        self.assertEqual(aug["ten"], 1000)
+        self.assertEqual(aug["ten_cum"], 1000)
+        self.assertEqual(sep["ten"], 2000)
+        self.assertEqual(sep["ten_cum"], 3000)
+        self.assertEqual(sep["spent_local"], 1500)
+        self.assertEqual(sep["spent_cum"], 1500)
+
+    def test_transfer_moves_rub_from_everyday_to_savings(self):
+        db.set_opening(self.conn, {"everyday": 10000})
+        db.add_transfer(self.conn, "2026-09-21", "savings", 3000, "monthly top-up")
+        db.add_transfer(self.conn, "2026-09-22", "ten", 1000, "")
+        bals = db.balances(self.conn)
+        self.assertEqual(bals["everyday"], 6000)
+        self.assertEqual(bals["savings"], 3000)
+        self.assertEqual(bals["ten"], 1000)
+        summary = db.month_summary(self.conn, 2026, 9)
+        self.assertEqual(summary["transferred"], 4000)
+        self.assertEqual(summary["saved_local"], 4000)
+        with self.assertRaisesRegex(ValueError, "Not enough"):
+            db.add_transfer(self.conn, "2026-09-23", "daughter", 7000, "")
+        with self.assertRaisesRegex(ValueError, "greater than zero"):
+            db.add_transfer(self.conn, "2026-09-23", "daughter", 0, "")
+
+    def test_correction_adjusts_balance(self):
+        db.set_opening(self.conn, {"everyday": 5000, "savings": 10000})
+        db.add_correction(
+            self.conn, "2026-09-21", "everyday", 500, "found cash"
+        )
+        db.add_correction(
+            self.conn, "2026-09-22", "savings", -2000, "bank fee"
+        )
+        bals = db.balances(self.conn)
+        self.assertEqual(bals["everyday"], 5500)
+        self.assertEqual(bals["savings"], 8000)
+        rows = db.list_corrections(self.conn, 2026, 9)
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0]["delta_cents"], -2000)
+        with self.assertRaisesRegex(ValueError, "matches the current balance"):
+            db.add_correction(self.conn, "2026-09-23", "everyday", 0, "")
+
     def test_income_and_expense_can_be_edited(self):
         income_id = db.add_income(
             self.conn, "2026-09-20", 10000, "job_20", "pay", 1000, 5000, 4000

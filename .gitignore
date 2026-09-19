@@ -8,3 +8,7 @@ apps/budget/data/
 apps/budget/.venv/
 *.log
 .DS_Store
+
+graphify-out/
+
+**/__pycache__/

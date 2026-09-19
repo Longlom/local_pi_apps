@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Correct balances{% endblock %}
+{% block body %}
+<h1>Correct balances</h1>
+<p class="muted">Each field shows what the app currently thinks is in that pot. Change any amount to what it actually is — a cash count, a bank statement, a rounding drift — and only the pots you touch get a dated correction entry.</p>
+<form method="post" action="/correct">
+  <label>Date
+    <input type="date" name="occurred_on" value="{{ today }}" required />
+  </label>
+
+  <fieldset>
+    <legend>10%</legend>
+    <label>RUB
+      <input type="text" inputmode="decimal" name="ten" required value="{{ field(bals['ten']) }}" />
+    </label>
+    <label>USD
+      <input type="text" inputmode="decimal" name="ten_usd" required value="{{ field(bals['ten_usd']) }}" />
+    </label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Everyday</legend>
+    <label>RUB
+      <input type="text" inputmode="decimal" name="everyday" required value="{{ field(bals['everyday']) }}" />
+    </label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Savings</legend>
+    <label>RUB
+      <input type="text" inputmode="decimal" name="savings" required value="{{ field(bals['savings']) }}" />
+    </label>
+    <label>USD
+      <input type="text" inputmode="decimal" name="savings_usd" required value="{{ field(bals['savings_usd']) }}" />
+    </label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Daughter</legend>
+    <label>RUB
+      <input type="text" inputmode="decimal" name="daughter" required value="{{ field(bals['daughter']) }}" />
+    </label>
+    <label>USD
+      <input type="text" inputmode="decimal" name="daughter_usd" required value="{{ field(bals['daughter_usd']) }}" />
+    </label>
+  </fieldset>
+
+  <fieldset>
+    <legend>USD cash</legend>
+    <label>USD
+      <input type="text" inputmode="decimal" name="usd" required value="{{ field(bals['usd']) }}" />
+    </label>
+  </fieldset>
+
+  <label>Note
+    <input type="text" name="note" maxlength="200" placeholder="e.g. cash count, bank fee, rounding" />
+  </label>
+  <button type="submit" class="btn">Save corrections</button>
+</form>
+{% endblock %}

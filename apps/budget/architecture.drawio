@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-09-17T00:00:00.000Z" agent="claude-code" version="24.0.0" type="device">
+  <diagram name="Rasp Budget — Service Map" id="rasp-budget-arch">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1280" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- host boundary -->
+        <mxCell id="boundary" value="RASPBERRY PI HOST&#10;/opt/rasp/apps/budget &#183; systemd-managed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#5B6B63;dashed=1;dashPattern=6 5;align=left;verticalAlign=top;spacing=10;fontFamily=IBM Plex Mono;fontSize=10;fontStyle=1;fontColor=#5B6B63;" vertex="1" parent="1">
+          <mxGeometry x="20" y="104" width="860" height="646" as="geometry" />
+        </mxCell>
+
+        <!-- browser -->
+        <mxCell id="n_browser" value="Browser&#10;LAN device &#8212; phone / laptop" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#152621;fontFamily=IBM Plex Mono;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="320" y="24" width="240" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- gateway -->
+        <mxCell id="n_gateway" value="LAN gateway&#10;budget.local &#8594; 127.0.0.1:8090" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#152621;fontFamily=IBM Plex Mono;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="320" y="120" width="240" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- config.env -->
+        <mxCell id="n_config" value="config.env&#10;HOST &#183; PORT &#183; CURRENCY &#183; DATA_DIR" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#5B6B63;dashed=1;fontFamily=IBM Plex Mono;fontSize=11;fontStyle=1;fontColor=#152621;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="34" y="214" width="190" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- systemd group -->
+        <mxCell id="n_systemd" value="systemd unit &#183; budget.service&#10;Restart=always &#183; RestartSec=3s" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#5B6B63;dashed=1;align=left;verticalAlign=top;spacing=10;fontFamily=IBM Plex Mono;fontSize=10.5;fontColor=#5B6B63;" vertex="1" parent="1">
+          <mxGeometry x="250" y="214" width="380" height="96" as="geometry" />
+        </mxCell>
+
+        <!-- uvicorn -->
+        <mxCell id="n_uvicorn" value="uvicorn&#10;ASGI &#183; app:app &#183; 0.0.0.0:8090" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#152621;fontFamily=IBM Plex Mono;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="270" y="254" width="340" height="46" as="geometry" />
+        </mxCell>
+
+        <!-- app.py core -->
+        <mxCell id="n_app" value="app.py&#10;FastAPI &#183; SessionMiddleware &#183; Jinja2&#10;routes: month &#183; income &#183; expense&#10;usd &#183; sleeves &#183; opening" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2E6F5A;strokeColor=#2E6F5A;fontColor=#F3F8F5;fontFamily=IBM Plex Mono;fontSize=13;fontStyle=1;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="250" y="350" width="380" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- left satellites -->
+        <mxCell id="n_templates" value="templates/&#10;*.html via Jinja2Templates" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F7F3;strokeColor=#152621;fontFamily=IBM Plex Mono;fontSize=11;fontStyle=1;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="34" y="350" width="180" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="n_static" value="static/&#10;style.css &#183; ds/*.css &#183; fonts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F7F3;strokeColor=#152621;fontFamily=IBM Plex Mono;fontSize=11;fontStyle=1;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="34" y="414" width="180" height="48" as="geometry" />
+        </mxCell>
+
+        <!-- right satellites -->
+        <mxCell id="n_money" value="money.py&#10;cents &#8644; decimal, rounding" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F7F3;strokeColor=#152621;fontFamily=IBM Plex Mono;fontSize=11;fontStyle=1;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="666" y="350" width="180" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="n_charts" value="charts.py&#10;inline SVG donut segments" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F7F3;strokeColor=#152621;fontFamily=IBM Plex Mono;fontSize=11;fontStyle=1;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="666" y="414" width="180" height="48" as="geometry" />
+        </mxCell>
+
+        <!-- db.py / fx.py -->
+        <mxCell id="n_db" value="db.py&#10;session(DB_PATH) &#183; sqlite3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#152621;fontFamily=IBM Plex Mono;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="170" y="520" width="210" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="n_fx" value="fx.py&#10;usd_to_rub()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#152621;fontFamily=IBM Plex Mono;fontSize=12;fontStyle=1;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="500" y="520" width="210" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- sqlite -->
+        <mxCell id="n_sqlite" value="data/budget.sqlite (WAL)&#10;incomes &#183; allocations &#183; expenses&#10;fx_trades &#183; sleeve_deposits&#10;opening_balances &#183; settings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#152621;fontFamily=IBM Plex Mono;fontSize=11.5;fontStyle=1;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="110" y="610" width="330" height="122" as="geometry" />
+        </mxCell>
+
+        <!-- cache -->
+        <mxCell id="n_cache" value="in-memory cache&#10;TTL 60 minutes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#5B6B63;dashed=1;fontFamily=IBM Plex Mono;fontSize=11;fontStyle=1;fontColor=#152621;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="510" y="608" width="190" height="42" as="geometry" />
+        </mxCell>
+
+        <!-- external -->
+        <mxCell id="n_external" value="Internet &#8212; FX providers&#10;cbr-xml-daily.ru (primary)&#10;open.er-api.com (fallback)&#10;4s timeout &#183; first reply wins" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#152621;fontFamily=IBM Plex Mono;fontSize=11.5;fontStyle=1;align=center;verticalAlign=middle;spacing=4;" vertex="1" parent="1">
+          <mxGeometry x="920" y="590" width="300" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- edges -->
+        <mxCell id="e_browser_gateway" value="HTTP &#183; budget.local" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;fontFamily=IBM Plex Mono;fontSize=9;strokeColor=#5B6B63;fontColor=#5B6B63;" edge="1" parent="1" source="n_browser" target="n_gateway">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_gateway_systemd" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;strokeColor=#5B6B63;" edge="1" parent="1" source="n_gateway" target="n_uvicorn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_config_uvicorn" value="env vars" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;dashed=1;fontFamily=IBM Plex Mono;fontSize=9;strokeColor=#5B6B63;fontColor=#5B6B63;" edge="1" parent="1" source="n_config" target="n_uvicorn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_uvicorn_app" value="ASGI call" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;fontFamily=IBM Plex Mono;fontSize=9;strokeColor=#5B6B63;fontColor=#5B6B63;" edge="1" parent="1" source="n_uvicorn" target="n_app">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_app_templates" value="renders" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;fontFamily=IBM Plex Mono;fontSize=9;strokeColor=#5B6B63;fontColor=#5B6B63;" edge="1" parent="1" source="n_app" target="n_templates">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_app_static" value="serves" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;fontFamily=IBM Plex Mono;fontSize=9;strokeColor=#5B6B63;fontColor=#5B6B63;" edge="1" parent="1" source="n_app" target="n_static">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_app_money" value="formats" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;fontFamily=IBM Plex Mono;fontSize=9;strokeColor=#5B6B63;fontColor=#5B6B63;" edge="1" parent="1" source="n_app" target="n_money">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_app_charts" value="chart data" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;fontFamily=IBM Plex Mono;fontSize=9;strokeColor=#5B6B63;fontColor=#5B6B63;" edge="1" parent="1" source="n_app" target="n_charts">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_app_db" value="queries" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;fontFamily=IBM Plex Mono;fontSize=9;strokeColor=#5B6B63;fontColor=#5B6B63;" edge="1" parent="1" source="n_app" target="n_db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_app_fx" value="rate lookup" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;fontFamily=IBM Plex Mono;fontSize=9;strokeColor=#5B6B63;fontColor=#5B6B63;" edge="1" parent="1" source="n_app" target="n_fx">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_db_sqlite" value="read / write" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;fontFamily=IBM Plex Mono;fontSize=9;strokeColor=#5B6B63;fontColor=#5B6B63;" edge="1" parent="1" source="n_db" target="n_sqlite">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_fx_cache" value="checks" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;fontFamily=IBM Plex Mono;fontSize=9;strokeColor=#5B6B63;fontColor=#5B6B63;" edge="1" parent="1" source="n_fx" target="n_cache">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_cache_external" value="GET &#183; cache miss" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;dashed=1;fontFamily=IBM Plex Mono;fontSize=9;fontStyle=1;strokeColor=#AD701D;fontColor=#AD701D;" edge="1" parent="1" source="n_cache" target="n_external">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -8,27 +8,107 @@
 </div>
 
 <section class="headlines">
-  <article>
-    <span>Into 10%</span>
-    <strong>{{ fmt(summary.ten) }}</strong>
-  </article>
-  <article>
-    <span>Managed to save</span>
-    <strong>{{ fmt(summary.saved_local) }}</strong>
-    {% if summary.usd_bought %}
-    <em>+ {{ fmt_usd(summary.usd_bought) }} cash</em>
-    {% endif %}
-  </article>
-  <article>
-    <span>Spent</span>
-    <strong>{{ fmt(summary.spent_local) }}</strong>
-    {% if summary.spent_usd %}
-    <em>+ {{ fmt_usd(summary.spent_usd) }}</em>
-    {% endif %}
-  </article>
+  <a class="headline-link{% if metric_detail == 'ten' %} is-active{% endif %}"
+     href="/?month={{ nav.current }}&detail=ten" aria-current="{{ 'true' if metric_detail == 'ten' else 'false' }}">
+    <article>
+      <span>Into 10%</span>
+      <strong>{{ fmt(summary.ten) }}</strong>
+    </article>
+  </a>
+  <a class="headline-link{% if metric_detail == 'saved' %} is-active{% endif %}"
+     href="/?month={{ nav.current }}&detail=saved" aria-current="{{ 'true' if metric_detail == 'saved' else 'false' }}">
+    <article>
+      <span>Managed to save</span>
+      <strong>{{ fmt(summary.saved_local) }}</strong>
+      {% if summary.usd_bought %}
+      <em>+ {{ fmt_usd(summary.usd_bought) }} cash</em>
+      {% endif %}
+    </article>
+  </a>
+  <a class="headline-link{% if metric_detail == 'spent' %} is-active{% endif %}"
+     href="/?month={{ nav.current }}&detail=spent" aria-current="{{ 'true' if metric_detail == 'spent' else 'false' }}">
+    <article>
+      <span>Spent</span>
+      <strong>{{ fmt(summary.spent_local) }}</strong>
+      {% if summary.spent_usd %}
+      <em>+ {{ fmt_usd(summary.spent_usd) }}</em>
+      {% endif %}
+    </article>
+  </a>
 </section>
 
-<p class="muted">Saved = 10% + savings bank + local spent on USD this month. Income {{ fmt(summary.income_gross) }}.</p>
+<p class="muted">Tap a card above for a line-by-line breakdown this month. Saved = 10% + savings bank + moves from everyday + local spent on USD. Income {{ fmt(summary.income_gross) }}.</p>
+
+{% if metric_detail %}
+<section class="metric-detail chart-card" id="metric-detail">
+  <div class="metric-detail-head">
+    {% if metric_detail == 'ten' %}
+    <h2>Into 10% · {{ nav.label }}</h2>
+    <p class="muted">Each paycheck’s slice into the 10% pot.</p>
+    {% elif metric_detail == 'saved' %}
+    <h2>Managed to save · {{ nav.label }}</h2>
+    <p class="muted">Paycheck splits, moves from everyday, and RUB used to buy USD cash.</p>
+    {% else %}
+    <h2>Spent · {{ nav.label }}</h2>
+    <p class="muted">Local-currency expenses (USD pot spends listed separately on the card).</p>
+    {% endif %}
+    <a class="metric-detail-close" href="/?month={{ nav.current }}">Close</a>
+  </div>
+  <p class="metric-detail-total">Total <strong>{{ fmt(detail_totals[metric_detail]) }}</strong></p>
+  {% if detail_items %}
+  <div class="metric-detail-list">
+    {% for item in detail_items %}
+      {% if metric_detail == 'ten' %}
+      <a class="row" href="/income/{{ item.income_id }}">
+        <div>
+          <strong>{{ fmt(item.amount_cents) }}</strong>
+          <span>{{ source_label(item.source) }} · {{ item.occurred_on }}</span>
+          {% if item.note %}<span>{{ item.note }}</span>{% endif %}
+        </div>
+      </a>
+      {% elif metric_detail == 'saved' %}
+      {% if item.income_id %}
+      <a class="row fx" href="/income/{{ item.income_id }}">
+      {% else %}
+      <article class="row fx">
+      {% endif %}
+        <div>
+          <strong>{{ fmt(item.amount_cents) }}</strong>
+          <span>
+            {% if item.kind == 'income_ten' %}
+              Paycheck → 10% · {{ source_label(item.source) }}
+            {% elif item.kind == 'income_savings' %}
+              Paycheck → savings · {{ source_label(item.source) }}
+            {% elif item.kind == 'transfer' %}
+              Move from Everyday → {{ pot_label(item.to_pot) }}
+            {% else %}
+              Bought USD · {{ fmt_usd(item.usd_cents) }} for {{ fmt(item.amount_cents) }}
+            {% endif %}
+            · {{ item.occurred_on }}
+          </span>
+          {% if item.note %}<span>{{ item.note }}</span>{% endif %}
+        </div>
+      {% if item.income_id %}
+      </a>
+      {% else %}
+      </article>
+      {% endif %}
+      {% else %}
+      <a class="row spend" href="/expense/{{ item.expense_id }}">
+        <div>
+          <strong>{{ fmt(item.amount_cents) }}</strong>
+          <span>{{ pot_label(item.pot) }} · {{ category_label(item.category) }} · {{ item.occurred_on }}</span>
+          {% if item.note %}<span>{{ item.note }}</span>{% endif %}
+        </div>
+      </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="muted">Nothing recorded for this total in {{ nav.label }} yet.</p>
+  {% endif %}
+</section>
+{% endif %}
 
 <section class="fx-banner">
   {% if quote %}
@@ -49,33 +129,33 @@
 </section>
 
 <section class="pots">
-  <div class="pot{% if 'ten' in excluded %} is-excluded{% endif %}">
+  <a class="pot{% if 'ten' in excluded %} is-excluded{% endif %}" href="/correct">
     <span>10%</span>
     <strong>{{ fmt(balances.ten) }}</strong>
     <em>{{ fmt_usd(balances.ten_usd) }}{% if quote %} ≈ {{ fmt(ten_usd_rub_cents) }}{% endif %}</em>
-  </div>
-  <div class="pot{% if 'savings' in excluded %} is-excluded{% endif %}">
+  </a>
+  <a class="pot{% if 'savings' in excluded %} is-excluded{% endif %}" href="/correct">
     <span>Savings</span>
     <strong>{{ fmt(balances.savings) }}</strong>
     <em>{{ fmt_usd(balances.savings_usd) }}{% if quote %} ≈ {{ fmt(savings_usd_rub_cents) }}{% endif %}</em>
-  </div>
-  <div class="pot{% if 'daughter' in excluded %} is-excluded{% endif %}">
+  </a>
+  <a class="pot{% if 'daughter' in excluded %} is-excluded{% endif %}" href="/correct">
     <span>Daughter</span>
     <strong>{{ fmt(balances.daughter) }}</strong>
     <em>{{ fmt_usd(balances.daughter_usd) }}{% if quote %} ≈ {{ fmt(daughter_usd_rub_cents) }}{% endif %}</em>
-  </div>
-  <div class="pot{% if 'everyday' in excluded %} is-excluded{% endif %}">
+  </a>
+  <a class="pot{% if 'everyday' in excluded %} is-excluded{% endif %}" href="/correct">
     <span>Everyday</span>
     <strong>{{ fmt(balances.everyday) }}</strong>
-  </div>
-  <div class="pot{% if 'usd' in excluded %} is-excluded{% endif %}">
+  </a>
+  <a class="pot{% if 'usd' in excluded %} is-excluded{% endif %}" href="/correct">
     <span>USD cash</span>
     <strong>{{ fmt_usd(balances.usd) }}</strong>
     {% if quote %}<em>≈ {{ fmt(usd_rub_cents) }}</em>{% endif %}
-  </div>
+  </a>
 </section>
 
-<p class="muted">Counted pots in rubles today: {{ fmt(total_rub) }} (of which saved {{ fmt(saved_stock) }}). Tap an account above to leave it out of the total.</p>
+<p class="muted">Counted pots in rubles today: {{ fmt(total_rub) }} (of which saved {{ fmt(saved_stock) }}). Tap a pot to correct its balance, or use Count to leave it out of the total.</p>
 
 {% macro stock_chart(view) %}
     <div class="donut-wrap">
@@ -236,6 +316,15 @@
     {% else %}
     <p class="muted">No spending recorded this month.</p>
     {% endif %}
+    {% for row in corrections if row.delta_cents < 0 %}
+    <article class="row spend">
+      <div>
+        <strong>{% if row.pot in ["usd", "ten_usd", "savings_usd", "daughter_usd"] %}{{ fmt_usd(row.delta_cents) }}{% else %}{{ fmt(row.delta_cents) }}{% endif %}</strong>
+        <span>Corrected {{ pot_label(row.pot) }} · {{ row.occurred_on }}</span>
+        {% if row.note %}<span>{{ row.note }}</span>{% endif %}
+      </div>
+    </article>
+    {% endfor %}
   </div>
 
   <div class="tab-panel hidden" role="tabpanel" id="history-income" data-tab="income" aria-labelledby="tab-income" hidden>
@@ -255,6 +344,15 @@
     {% else %}
     <p class="muted">No income recorded this month.</p>
     {% endif %}
+    {% for row in transfers %}
+    <article class="row fx">
+      <div>
+        <strong>{{ fmt(row.amount_cents) }}</strong>
+        <span>Moved from Everyday to {{ pot_label(row.to_pot) }} · {{ row.occurred_on }}</span>
+        {% if row.note %}<span>{{ row.note }}</span>{% endif %}
+      </div>
+    </article>
+    {% endfor %}
     {% for row in deposits %}
     <article class="row fx">
       <div>
@@ -274,6 +372,15 @@
       <div>
         <strong>{{ fmt_usd(row.usd_cents) }}</strong>
         <span>bought with {{ fmt(row.local_cents) }} from {{ pot_label(row.from_pot) }} · {{ '%.3f'|format(row.rate_milli / 1000) }} RUB/USD · {{ row.occurred_on }}</span>
+      </div>
+    </article>
+    {% endfor %}
+    {% for row in corrections if row.delta_cents >= 0 %}
+    <article class="row fx">
+      <div>
+        <strong>+{% if row.pot in ["usd", "ten_usd", "savings_usd", "daughter_usd"] %}{{ fmt_usd(row.delta_cents) }}{% else %}{{ fmt(row.delta_cents) }}{% endif %}</strong>
+        <span>Corrected {{ pot_label(row.pot) }} · {{ row.occurred_on }}</span>
+        {% if row.note %}<span>{{ row.note }}</span>{% endif %}
       </div>
     </article>
     {% endfor %}
@@ -299,6 +406,9 @@
     tabs.forEach((tab) => tab.addEventListener("click", () => show(tab.dataset.tab)));
   }
   bindTabs(document.getElementById("stock"));
-  bindTabs(document.getElementById("history"));
+  const drill = document.getElementById("metric-detail");
+  if (drill) {
+    drill.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 </script>
 {% endblock %}

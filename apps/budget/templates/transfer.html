@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Move to savings{% endblock %}
+{% block body %}
+<h1>Move to savings</h1>
+<p class="muted">Move rubles from Everyday into a savings account. This is not spending.</p>
+<p class="muted">Everyday balance: <strong>{{ fmt(balances.everyday) }}</strong></p>
+<form method="post" action="/transfer">
+  <label>Date
+    <input type="date" name="occurred_on" value="{{ today }}" required />
+  </label>
+  <label>To
+    <select name="to_pot" required>
+      {% for value, label in [
+        ("ten", "10%"),
+        ("savings", "Savings"),
+        ("daughter", "Daughter")
+      ] %}
+      <option value="{{ value }}" {% if to_account == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Amount ({{ base_currency }})
+    <input type="text" inputmode="decimal" name="amount" required placeholder="0.00" />
+  </label>
+  <label>Note
+    <input type="text" name="note" maxlength="200" />
+  </label>
+  <button type="submit" class="btn">Move</button>
+</form>
+{% endblock %}

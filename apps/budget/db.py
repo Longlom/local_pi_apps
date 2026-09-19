@@ -90,6 +90,24 @@ CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL DEFAULT ''
 );
+
+CREATE TABLE IF NOT EXISTS corrections (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    occurred_on TEXT NOT NULL,
+    pot TEXT NOT NULL,
+    delta_cents INTEGER NOT NULL,
+    note TEXT NOT NULL DEFAULT '',
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS transfers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    occurred_on TEXT NOT NULL,
+    to_pot TEXT NOT NULL,
+    amount_cents INTEGER NOT NULL,
+    note TEXT NOT NULL DEFAULT '',
+    created_at TEXT NOT NULL
+);
 """
 
 
@@ -166,6 +184,16 @@ def balances(conn: sqlite3.Connection) -> dict[str, int]:
             "SELECT COALESCE(SUM(local_cents),0) FROM fx_trades WHERE from_pot=?",
             (pot,),
         )
+    out["everyday"] -= _sum(
+        conn,
+        "SELECT COALESCE(SUM(amount_cents),0) FROM transfers",
+    )
+    for account in SLEEVE_ACCOUNTS:
+        out[account] += _sum(
+            conn,
+            "SELECT COALESCE(SUM(amount_cents),0) FROM transfers WHERE to_pot=?",
+            (account,),
+        )
     for account in SLEEVE_ACCOUNTS:
         out[account] += _sum(
             conn,
@@ -187,6 +215,12 @@ def balances(conn: sqlite3.Connection) -> dict[str, int]:
         out[pot] -= _sum(
             conn,
             "SELECT COALESCE(SUM(amount_cents),0) FROM expenses WHERE pot=?",
+            (pot,),
+        )
+    for pot in POTS_ALL:
+        out[pot] += _sum(
+            conn,
+            "SELECT COALESCE(SUM(delta_cents),0) FROM corrections WHERE pot=?",
             (pot,),
         )
     return out
@@ -260,11 +294,20 @@ def month_summary(conn: sqlite3.Connection, year: int, month: int) -> dict[str, 
         """,
         (start, end),
     )
+    transferred = _sum(
+        conn,
+        """
+        SELECT COALESCE(SUM(amount_cents),0) FROM transfers
+        WHERE occurred_on BETWEEN ? AND ?
+        """,
+        (start, end),
+    )
     return {
         "ten": ten,
         "savings": savings,
         "everyday": everyday,
-        "saved_local": ten + savings + usd_local,
+        "transferred": transferred,
+        "saved_local": ten + savings + usd_local + transferred,
         "usd_bought": usd_bought,
         "usd_local": usd_local,
         "spent_local": spent_local,
@@ -273,6 +316,155 @@ def month_summary(conn: sqlite3.Connection, year: int, month: int) -> dict[str, 
         "start": start,
         "end": end,
     }
+
+
+def _distinct_activity_months(conn: sqlite3.Connection) -> list[tuple[int, int]]:
+    rows = conn.execute(
+        """
+        SELECT ym FROM (
+            SELECT substr(occurred_on, 1, 7) AS ym FROM incomes
+            UNION SELECT substr(occurred_on, 1, 7) FROM expenses
+            UNION SELECT substr(occurred_on, 1, 7) FROM fx_trades
+            UNION SELECT substr(occurred_on, 1, 7) FROM sleeve_deposits
+            UNION SELECT substr(occurred_on, 1, 7) FROM transfers
+            UNION SELECT substr(occurred_on, 1, 7) FROM corrections
+        )
+        WHERE ym GLOB '????-??'
+        GROUP BY ym
+        ORDER BY ym ASC
+        """
+    ).fetchall()
+    out: list[tuple[int, int]] = []
+    for row in rows:
+        ym = row[0]
+        year_s, month_s = ym.split("-", 1)
+        out.append((int(year_s), int(month_s)))
+    today = date.today()
+    current = (today.year, today.month)
+    if current not in out:
+        out.append(current)
+        out.sort()
+    return out
+
+
+def monthly_flow_history(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    months = _distinct_activity_months(conn)
+    ten_cum = saved_cum = spent_cum = 0
+    history: list[dict[str, Any]] = []
+    for year, month in months:
+        summary = month_summary(conn, year, month)
+        ten_cum += summary["ten"]
+        saved_cum += summary["saved_local"]
+        spent_cum += summary["spent_local"]
+        history.append(
+            {
+                "year": year,
+                "month": month,
+                "ym": f"{year:04d}-{month:02d}",
+                "label": date(year, month, 1).strftime("%b %Y"),
+                "ten": summary["ten"],
+                "saved_local": summary["saved_local"],
+                "spent_local": summary["spent_local"],
+                "ten_cum": ten_cum,
+                "saved_cum": saved_cum,
+                "spent_cum": spent_cum,
+            }
+        )
+    return history
+
+
+def month_ten_details(conn: sqlite3.Connection, start: str, end: str) -> list[dict[str, Any]]:
+    rows = list_incomes(conn, start, end)
+    out: list[dict[str, Any]] = []
+    for row in rows:
+        amount = int(row["ten_cents"])
+        if amount <= 0:
+            continue
+        out.append(
+            {
+                "occurred_on": row["occurred_on"],
+                "amount_cents": amount,
+                "source": row["source"],
+                "note": row["note"] or "",
+                "income_id": int(row["id"]),
+            }
+        )
+    return out
+
+
+def month_saved_details(conn: sqlite3.Connection, start: str, end: str) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for row in list_incomes(conn, start, end):
+        ten = int(row["ten_cents"])
+        if ten > 0:
+            out.append(
+                {
+                    "occurred_on": row["occurred_on"],
+                    "amount_cents": ten,
+                    "kind": "income_ten",
+                    "source": row["source"],
+                    "note": row["note"] or "",
+                    "income_id": int(row["id"]),
+                }
+            )
+        savings = int(row["savings_cents"])
+        if savings > 0:
+            out.append(
+                {
+                    "occurred_on": row["occurred_on"],
+                    "amount_cents": savings,
+                    "kind": "income_savings",
+                    "source": row["source"],
+                    "note": row["note"] or "",
+                    "income_id": int(row["id"]),
+                }
+            )
+    for row in list_transfers(conn, start, end):
+        out.append(
+            {
+                "occurred_on": row["occurred_on"],
+                "amount_cents": int(row["amount_cents"]),
+                "kind": "transfer",
+                "to_pot": row["to_pot"],
+                "note": row["note"] or "",
+            }
+        )
+    for row in list_fx(conn, start, end):
+        if row["from_pot"] != "everyday":
+            continue
+        local = int(row["local_cents"])
+        if local <= 0:
+            continue
+        out.append(
+            {
+                "occurred_on": row["occurred_on"],
+                "amount_cents": local,
+                "kind": "usd_buy",
+                "usd_cents": int(row["usd_cents"]),
+                "note": row["note"] or "",
+            }
+        )
+    out.sort(key=lambda item: (item["occurred_on"], item.get("income_id", 0)), reverse=True)
+    return out
+
+
+def month_spent_details(conn: sqlite3.Connection, start: str, end: str) -> list[dict[str, Any]]:
+    usd_pots = ("usd", "ten_usd", "savings_usd", "daughter_usd")
+    out: list[dict[str, Any]] = []
+    for row in list_expenses(conn, start, end):
+        if row["pot"] in usd_pots:
+            continue
+        out.append(
+            {
+                "occurred_on": row["occurred_on"],
+                "amount_cents": int(row["amount_cents"]),
+                "pot": row["pot"],
+                "category": row["category"],
+                "note": row["note"] or "",
+                "expense_id": int(row["id"]),
+            }
+        )
+    return out
 
 
 def _validate_income_split(source: str, gross_cents: int, ten: int, everyday: int, savings: int) -> None:
@@ -523,6 +715,79 @@ def add_sleeve_deposit(
         ),
     )
     return int(cur.lastrowid)
+
+
+def add_correction(
+    conn: sqlite3.Connection,
+    occurred_on: str,
+    pot: str,
+    delta_cents: int,
+    note: str,
+) -> int:
+    if pot not in POTS_ALL:
+        raise ValueError("Unknown pot")
+    if delta_cents == 0:
+        raise ValueError("Corrected amount matches the current balance already")
+    cur = conn.execute(
+        """
+        INSERT INTO corrections(occurred_on, pot, delta_cents, note, created_at)
+        VALUES(?,?,?,?,?)
+        """,
+        (occurred_on, pot, delta_cents, note, datetime.now().isoformat(timespec="seconds")),
+    )
+    return int(cur.lastrowid)
+
+
+def list_corrections(conn: sqlite3.Connection, start: str, end: str) -> list[sqlite3.Row]:
+    return conn.execute(
+        """
+        SELECT * FROM corrections
+        WHERE occurred_on BETWEEN ? AND ?
+        ORDER BY occurred_on DESC, id DESC
+        """,
+        (start, end),
+    ).fetchall()
+
+
+def add_transfer(
+    conn: sqlite3.Connection,
+    occurred_on: str,
+    to_pot: str,
+    amount_cents: int,
+    note: str,
+) -> int:
+    if to_pot not in SLEEVE_ACCOUNTS:
+        raise ValueError("Choose the 10%, savings, or daughter account")
+    if amount_cents <= 0:
+        raise ValueError("Amount must be greater than zero")
+    bals = balances(conn)
+    if bals["everyday"] < amount_cents:
+        raise ValueError("Not enough money in everyday")
+    cur = conn.execute(
+        """
+        INSERT INTO transfers(occurred_on, to_pot, amount_cents, note, created_at)
+        VALUES(?,?,?,?,?)
+        """,
+        (
+            occurred_on,
+            to_pot,
+            amount_cents,
+            note,
+            datetime.now().isoformat(timespec="seconds"),
+        ),
+    )
+    return int(cur.lastrowid)
+
+
+def list_transfers(conn: sqlite3.Connection, start: str, end: str) -> list[sqlite3.Row]:
+    return conn.execute(
+        """
+        SELECT * FROM transfers
+        WHERE occurred_on BETWEEN ? AND ?
+        ORDER BY occurred_on DESC, id DESC
+        """,
+        (start, end),
+    ).fetchall()
 
 
 def set_opening(conn: sqlite3.Connection, amounts: dict[str, int]) -> None:

@@ -7,8 +7,8 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
 from urllib.parse import urlparse
 
-from fastapi import FastAPI, Form, Request
-from fastapi.responses import RedirectResponse
+from fastapi import FastAPI, Form, Query, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
@@ -17,6 +17,22 @@ import charts
 import db
 import fx
 from money import field_money, format_money, parse_money, ten_percent
+from schemas import (
+    CATEGORY_ENUM,
+    DATE_DESC,
+    DESCRIPTION,
+    EXCLUDE_ACCOUNT_ENUM,
+    MONEY_DESC,
+    MONTH_DESC,
+    POT_ENUM,
+    REDIRECT_303,
+    SLEEVE_ACCOUNT_ENUM,
+    SLEEVE_MODE_ENUM,
+    SOURCE_ENUM,
+    TRANSFER_TO_ENUM,
+    TAGS,
+    TenPercentResponse,
+)
 
 APP_DIR = Path(__file__).resolve().parent
 DATA_DIR = APP_DIR / os.environ.get("DATA_DIR", "data")
@@ -56,7 +72,15 @@ CATEGORY_LABELS = {
 
 STATIC_VERSION = str(int((APP_DIR / "static" / "style.css").stat().st_mtime))
 
-app = FastAPI(title="Family budget")
+app = FastAPI(
+    title="Rasp Budget",
+    description=DESCRIPTION,
+    version="1.0.0",
+    openapi_tags=TAGS,
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
+)
 app.add_middleware(SessionMiddleware, secret_key=SECRET, max_age=14 * 24 * 3600)
 app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=str(APP_DIR / "templates"))
@@ -217,8 +241,18 @@ def page(request: Request, name: str, **extra):
     return templates.TemplateResponse(request, name, ctx(request, **extra))
 
 
-@app.post("/exclude")
-def exclude_toggle(request: Request, account: str = Form()):
+@app.post(
+    "/exclude",
+    tags=["Settings"],
+    summary="Toggle account exclusion from totals",
+    response_class=RedirectResponse,
+    status_code=303,
+    responses={303: REDIRECT_303},
+)
+def exclude_toggle(
+    request: Request,
+    account: str = Form(description=EXCLUDE_ACCOUNT_ENUM),
+):
     try:
         with db.session(DB_PATH) as conn:
             db.toggle_excluded_account(conn, account)
@@ -227,8 +261,24 @@ def exclude_toggle(request: Request, account: str = Form()):
     return RedirectResponse(safe_back(request), status_code=303)
 
 
-@app.get("/")
-def month_page(request: Request, month: str | None = None):
+METRIC_DETAILS = frozenset({"ten", "saved", "spent"})
+
+
+@app.get(
+    "/",
+    tags=["Dashboard"],
+    summary="Monthly dashboard",
+    response_class=HTMLResponse,
+    responses={200: {"description": "Rendered month.html"}},
+)
+def month_page(
+    request: Request,
+    month: str | None = Query(default=None, description=MONTH_DESC),
+    detail: str | None = Query(
+        default=None,
+        description="Drill-down for headline cards: ten | saved | spent",
+    ),
+):
     try:
         year, mon = parse_month(month)
     except ValueError:
@@ -240,10 +290,20 @@ def month_page(request: Request, month: str | None = None):
         expenses = db.list_expenses(conn, summary["start"], summary["end"])
         trades = db.list_fx(conn, summary["start"], summary["end"])
         deposits = db.list_sleeve_deposits(conn, summary["start"], summary["end"])
+        corrections = db.list_corrections(conn, summary["start"], summary["end"])
+        transfers = db.list_transfers(conn, summary["start"], summary["end"])
         rates = db.rate_history(conn)
         bals = db.balances(conn)
         categories = db.spend_by_category(conn, summary["start"], summary["end"])
         excluded = db.excluded_accounts(conn)
+        metric_detail = detail if detail in METRIC_DETAILS else None
+        detail_items: list[dict] = []
+        if metric_detail == "ten":
+            detail_items = db.month_ten_details(conn, summary["start"], summary["end"])
+        elif metric_detail == "saved":
+            detail_items = db.month_saved_details(conn, summary["start"], summary["end"])
+        elif metric_detail == "spent":
+            detail_items = db.month_spent_details(conn, summary["start"], summary["end"])
 
     quote = fx.usd_to_rub()
     usd_rub_cents = 0
@@ -351,6 +411,12 @@ def month_page(request: Request, month: str | None = None):
     held_usd = counted["held_usd"]
     held_usd_rub = counted["held_usd_rub"]
 
+    detail_totals = {
+        "ten": summary["ten"],
+        "saved": summary["saved_local"],
+        "spent": summary["spent_local"],
+    }
+
     return page(
         request,
         "month.html",
@@ -360,6 +426,8 @@ def month_page(request: Request, month: str | None = None):
         expenses=expenses,
         trades=trades,
         deposits=deposits,
+        corrections=corrections,
+        transfers=transfers,
         quote=quote,
         usd_rub_cents=usd_rub_cents,
         ten_usd_rub_cents=ten_usd_rub_cents,
@@ -376,24 +444,39 @@ def month_page(request: Request, month: str | None = None):
         held_usd=held_usd,
         held_usd_rub=held_usd_rub,
         rate_text=f"{quote['rate']:.2f}" if quote else None,
+        metric_detail=metric_detail,
+        detail_items=detail_items,
+        detail_totals=detail_totals,
     )
 
 
-@app.get("/income")
+@app.get(
+    "/income",
+    tags=["Income"],
+    summary="New income form",
+    response_class=HTMLResponse,
+)
 def income_form(request: Request):
     return page(request, "income.html")
 
 
-@app.post("/income")
+@app.post(
+    "/income",
+    tags=["Income"],
+    summary="Create income",
+    response_class=RedirectResponse,
+    status_code=303,
+    responses={303: REDIRECT_303},
+)
 def income_save(
     request: Request,
-    occurred_on: str = Form(),
-    source: str = Form(),
-    gross: str = Form(),
-    ten: str = Form(),
-    everyday: str = Form(),
-    savings: str = Form(),
-    note: str = Form(""),
+    occurred_on: str = Form(description=DATE_DESC),
+    source: str = Form(description=SOURCE_ENUM),
+    gross: str = Form(description=MONEY_DESC),
+    ten: str = Form(description=f"10% pot allocation. {MONEY_DESC}"),
+    everyday: str = Form(description=f"Everyday pot allocation. {MONEY_DESC}"),
+    savings: str = Form(description=f"Savings pot allocation. {MONEY_DESC}"),
+    note: str = Form("", description="Optional note"),
 ):
     try:
         gross_c = parse_money(gross)
@@ -411,7 +494,13 @@ def income_save(
         return RedirectResponse("/income", status_code=303)
 
 
-@app.get("/income/{income_id}")
+@app.get(
+    "/income/{income_id}",
+    tags=["Income"],
+    summary="Edit income form",
+    response_class=HTMLResponse,
+    responses={303: REDIRECT_303},
+)
 def income_edit(request: Request, income_id: int):
     with db.session(DB_PATH) as conn:
         entry = db.get_income(conn, income_id)
@@ -421,17 +510,24 @@ def income_edit(request: Request, income_id: int):
     return page(request, "income.html", entry=entry)
 
 
-@app.post("/income/{income_id}")
+@app.post(
+    "/income/{income_id}",
+    tags=["Income"],
+    summary="Update income",
+    response_class=RedirectResponse,
+    status_code=303,
+    responses={303: REDIRECT_303},
+)
 def income_update(
     request: Request,
     income_id: int,
-    occurred_on: str = Form(),
-    source: str = Form(),
-    gross: str = Form(),
-    ten: str = Form(),
-    everyday: str = Form(),
-    savings: str = Form(),
-    note: str = Form(""),
+    occurred_on: str = Form(description=DATE_DESC),
+    source: str = Form(description=SOURCE_ENUM),
+    gross: str = Form(description=MONEY_DESC),
+    ten: str = Form(description=f"10% pot allocation. {MONEY_DESC}"),
+    everyday: str = Form(description=f"Everyday pot allocation. {MONEY_DESC}"),
+    savings: str = Form(description=f"Savings pot allocation. {MONEY_DESC}"),
+    note: str = Form("", description="Optional note"),
 ):
     try:
         with db.session(DB_PATH) as conn:
@@ -453,20 +549,35 @@ def income_update(
         return RedirectResponse(f"/income/{income_id}", status_code=303)
 
 
-@app.get("/expense")
+@app.get(
+    "/expense",
+    tags=["Expense"],
+    summary="New expense form",
+    response_class=HTMLResponse,
+)
 def expense_form(request: Request):
     return page(request, "expense.html", categories=CATEGORY_LABELS)
 
 
-@app.post("/expense")
+@app.post(
+    "/expense",
+    tags=["Expense"],
+    summary="Create expense",
+    response_class=RedirectResponse,
+    status_code=303,
+    responses={303: REDIRECT_303},
+)
 def expense_save(
     request: Request,
-    occurred_on: str = Form(),
-    pot: str = Form(),
-    amount: str = Form(),
-    category: str = Form(""),
-    note: str = Form(""),
-    confirm_ten: str | None = Form(None),
+    occurred_on: str = Form(description=DATE_DESC),
+    pot: str = Form(description=POT_ENUM),
+    amount: str = Form(description=MONEY_DESC),
+    category: str = Form("", description=CATEGORY_ENUM),
+    note: str = Form("", description="Optional note"),
+    confirm_ten: str | None = Form(
+        None,
+        description="Required when spending from ten or ten_usd",
+    ),
 ):
     try:
         amount_c = parse_money(amount)
@@ -487,7 +598,13 @@ def expense_save(
         return RedirectResponse("/expense", status_code=303)
 
 
-@app.get("/expense/{expense_id}")
+@app.get(
+    "/expense/{expense_id}",
+    tags=["Expense"],
+    summary="Edit expense form",
+    response_class=HTMLResponse,
+    responses={303: REDIRECT_303},
+)
 def expense_edit(request: Request, expense_id: int):
     with db.session(DB_PATH) as conn:
         entry = db.get_expense(conn, expense_id)
@@ -497,16 +614,26 @@ def expense_edit(request: Request, expense_id: int):
     return page(request, "expense.html", categories=CATEGORY_LABELS, entry=entry)
 
 
-@app.post("/expense/{expense_id}")
+@app.post(
+    "/expense/{expense_id}",
+    tags=["Expense"],
+    summary="Update expense",
+    response_class=RedirectResponse,
+    status_code=303,
+    responses={303: REDIRECT_303},
+)
 def expense_update(
     request: Request,
     expense_id: int,
-    occurred_on: str = Form(),
-    pot: str = Form(),
-    amount: str = Form(),
-    category: str = Form(""),
-    note: str = Form(""),
-    confirm_ten: str | None = Form(None),
+    occurred_on: str = Form(description=DATE_DESC),
+    pot: str = Form(description=POT_ENUM),
+    amount: str = Form(description=MONEY_DESC),
+    category: str = Form("", description=CATEGORY_ENUM),
+    note: str = Form("", description="Optional note"),
+    confirm_ten: str | None = Form(
+        None,
+        description="Required when moving spend into ten or ten_usd",
+    ),
 ):
     try:
         with db.session(DB_PATH) as conn:
@@ -527,19 +654,77 @@ def expense_update(
         return RedirectResponse(f"/expense/{expense_id}", status_code=303)
 
 
-@app.get("/usd")
+@app.get(
+    "/transfer",
+    tags=["Transfers"],
+    summary="Move RUB from everyday to a savings account",
+    response_class=HTMLResponse,
+)
+def transfer_form(
+    request: Request,
+    to: str = Query(default="savings", description=TRANSFER_TO_ENUM),
+):
+    if to not in db.SLEEVE_ACCOUNTS:
+        to = "savings"
+    return page(request, "transfer.html", to_account=to)
+
+
+@app.post(
+    "/transfer",
+    tags=["Transfers"],
+    summary="Record transfer from everyday",
+    response_class=RedirectResponse,
+    status_code=303,
+    responses={303: REDIRECT_303},
+)
+def transfer_save(
+    request: Request,
+    occurred_on: str = Form(description=DATE_DESC),
+    to_pot: str = Form(description=TRANSFER_TO_ENUM),
+    amount: str = Form(description=MONEY_DESC),
+    note: str = Form("", description="Optional note"),
+):
+    try:
+        with db.session(DB_PATH) as conn:
+            db.add_transfer(
+                conn,
+                occurred_on,
+                to_pot,
+                parse_money(amount),
+                note.strip(),
+            )
+        flash(request, "Transfer recorded.", "ok")
+        return RedirectResponse("/", status_code=303)
+    except ValueError as exc:
+        flash(request, str(exc))
+        return RedirectResponse(f"/transfer?to={to_pot}", status_code=303)
+
+
+@app.get(
+    "/usd",
+    tags=["USD purchase"],
+    summary="New USD purchase form",
+    response_class=HTMLResponse,
+)
 def usd_form(request: Request):
     return page(request, "usd.html")
 
 
-@app.post("/usd")
+@app.post(
+    "/usd",
+    tags=["USD purchase"],
+    summary="Record USD purchase",
+    response_class=RedirectResponse,
+    status_code=303,
+    responses={303: REDIRECT_303},
+)
 def usd_save(
     request: Request,
-    occurred_on: str = Form(),
-    from_pot: str = Form(),
-    local_spent: str = Form(),
-    usd_got: str = Form(),
-    note: str = Form(""),
+    occurred_on: str = Form(description=DATE_DESC),
+    from_pot: str = Form(description="Source RUB pot (usually everyday)"),
+    local_spent: str = Form(description=f"RUB spent. {MONEY_DESC}"),
+    usd_got: str = Form(description=f"USD received. {MONEY_DESC}"),
+    note: str = Form("", description="Optional note"),
 ):
     try:
         local_c = parse_money(local_spent)
@@ -553,8 +738,16 @@ def usd_save(
         return RedirectResponse("/usd", status_code=303)
 
 
-@app.get("/sleeves")
-def sleeves_form(request: Request, account: str = "ten"):
+@app.get(
+    "/sleeves",
+    tags=["Sleeves"],
+    summary="Sleeve conversion/deposit form",
+    response_class=HTMLResponse,
+)
+def sleeves_form(
+    request: Request,
+    account: str = Query(default="ten", description=SLEEVE_ACCOUNT_ENUM),
+):
     if account not in db.SLEEVE_ACCOUNTS:
         account = "ten"
     with db.session(DB_PATH) as conn:
@@ -568,16 +761,23 @@ def sleeves_form(request: Request, account: str = "ten"):
     )
 
 
-@app.post("/sleeves")
+@app.post(
+    "/sleeves",
+    tags=["Sleeves"],
+    summary="Record sleeve conversion or deposit",
+    response_class=RedirectResponse,
+    status_code=303,
+    responses={303: REDIRECT_303},
+)
 def sleeves_save(
     request: Request,
-    occurred_on: str = Form(),
-    account: str = Form(),
-    mode: str = Form(),
-    rub_amount: str = Form(""),
-    usd_amount: str = Form(""),
-    rate: str = Form(""),
-    note: str = Form(""),
+    occurred_on: str = Form(description=DATE_DESC),
+    account: str = Form(description=SLEEVE_ACCOUNT_ENUM),
+    mode: str = Form(description=SLEEVE_MODE_ENUM),
+    rub_amount: str = Form("", description=f"RUB amount. {MONEY_DESC}"),
+    usd_amount: str = Form("", description=f"USD amount. {MONEY_DESC}"),
+    rate: str = Form("", description="Exchange rate; required when usd_amount > 0"),
+    note: str = Form("", description="Optional note"),
 ):
     try:
         rub_cents = parse_optional_money(rub_amount)
@@ -616,24 +816,36 @@ def sleeves_save(
         return RedirectResponse(f"/sleeves?account={account}", status_code=303)
 
 
-@app.get("/opening")
+@app.get(
+    "/opening",
+    tags=["Opening balances"],
+    summary="Opening balances form",
+    response_class=HTMLResponse,
+)
 def opening_form(request: Request):
     with db.session(DB_PATH) as conn:
         opening = db.opening_balances(conn)
     return page(request, "opening.html", opening=opening)
 
 
-@app.post("/opening")
+@app.post(
+    "/opening",
+    tags=["Opening balances"],
+    summary="Save opening balances",
+    response_class=RedirectResponse,
+    status_code=303,
+    responses={303: REDIRECT_303},
+)
 def opening_save(
     request: Request,
-    ten: str = Form(),
-    everyday: str = Form(),
-    savings: str = Form(),
-    ten_usd: str = Form(),
-    savings_usd: str = Form(),
-    daughter: str = Form(),
-    daughter_usd: str = Form(),
-    usd: str = Form(),
+    ten: str = Form(description=f"10% RUB. {MONEY_DESC}"),
+    everyday: str = Form(description=f"Everyday RUB. {MONEY_DESC}"),
+    savings: str = Form(description=f"Savings RUB. {MONEY_DESC}"),
+    ten_usd: str = Form(description=f"10% USD. {MONEY_DESC}"),
+    savings_usd: str = Form(description=f"Savings USD. {MONEY_DESC}"),
+    daughter: str = Form(description=f"Daughter RUB. {MONEY_DESC}"),
+    daughter_usd: str = Form(description=f"Daughter USD. {MONEY_DESC}"),
+    usd: str = Form(description=f"USD cash. {MONEY_DESC}"),
 ):
     try:
         amounts = {
@@ -655,8 +867,78 @@ def opening_save(
         return RedirectResponse("/opening", status_code=303)
 
 
-@app.get("/api/ten-percent")
-def api_ten(gross: str = "0"):
+@app.get(
+    "/correct",
+    tags=["Corrections"],
+    summary="Correct balances form",
+    response_class=HTMLResponse,
+)
+def correct_form(request: Request):
+    with db.session(DB_PATH) as conn:
+        bals = db.balances(conn)
+    return page(request, "correct.html", bals=bals)
+
+
+@app.post(
+    "/correct",
+    tags=["Corrections"],
+    summary="Correct one or more pot balances",
+    response_class=RedirectResponse,
+    status_code=303,
+    responses={303: REDIRECT_303},
+)
+def correct_save(
+    request: Request,
+    occurred_on: str = Form(description=DATE_DESC),
+    note: str = Form("", description="Optional note, applied to every pot corrected"),
+    ten: str = Form(description=f"Corrected 10% RUB balance. {MONEY_DESC}"),
+    everyday: str = Form(description=f"Corrected everyday balance. {MONEY_DESC}"),
+    savings: str = Form(description=f"Corrected savings RUB balance. {MONEY_DESC}"),
+    daughter: str = Form(description=f"Corrected daughter RUB balance. {MONEY_DESC}"),
+    ten_usd: str = Form(description=f"Corrected 10% USD balance. {MONEY_DESC}"),
+    savings_usd: str = Form(description=f"Corrected savings USD balance. {MONEY_DESC}"),
+    daughter_usd: str = Form(description=f"Corrected daughter USD balance. {MONEY_DESC}"),
+    usd: str = Form(description=f"Corrected USD cash balance. {MONEY_DESC}"),
+):
+    targets = {
+        "ten": ten,
+        "everyday": everyday,
+        "savings": savings,
+        "daughter": daughter,
+        "ten_usd": ten_usd,
+        "savings_usd": savings_usd,
+        "daughter_usd": daughter_usd,
+        "usd": usd,
+    }
+    try:
+        target_cents = {pot: parse_money(raw) for pot, raw in targets.items()}
+        with db.session(DB_PATH) as conn:
+            bals = db.balances(conn)
+            changed = 0
+            for pot, target in target_cents.items():
+                delta = target - bals[pot]
+                if delta:
+                    db.add_correction(conn, occurred_on, pot, delta, note.strip())
+                    changed += 1
+        if changed:
+            flash(request, f"Corrected {changed} pot{'s' if changed != 1 else ''}.", "ok")
+        else:
+            flash(request, "Nothing to correct — every amount matched the current balance.", "ok")
+        return RedirectResponse("/", status_code=303)
+    except ValueError as exc:
+        flash(request, str(exc))
+        return RedirectResponse("/correct", status_code=303)
+
+
+@app.get(
+    "/api/ten-percent",
+    tags=["JSON API"],
+    summary="Calculate 10% income split",
+    response_model=TenPercentResponse,
+)
+def api_ten(
+    gross: str = Query(default="0", description=MONEY_DESC),
+):
     try:
         cents = parse_money(gross)
     except ValueError:
