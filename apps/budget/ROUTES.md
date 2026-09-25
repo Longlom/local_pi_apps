@@ -1,6 +1,6 @@
 # Rasp Budget — Route Reference
 
-All 19 endpoints exposed by `app.py`. Every mutating route follows the same
+All 21 endpoints exposed by `app.py`. Every mutating route follows the same
 shape: validate in Python, write inside one `db.session()` transaction,
 flash a message into the signed session cookie, then issue a 303 redirect
 (so a page reload never resubmits a form).
@@ -65,6 +65,12 @@ redirects to `/`.
   re-applied to current balances and rejected if any pot would go negative.
 - **Writes:** `UPDATE incomes` · `DELETE` + re-`INSERT allocations`
 
+### `POST /income/{id}/delete`
+- **Rule:** removing the income’s split must not make ten, everyday, or savings
+  negative (same pots as the split).
+- **Writes:** `DELETE incomes` (allocations cascade)
+- **Response:** redirect `/?month=YYYY-MM` (ok) · redirect `/income/{id}` (error)
+
 ---
 
 ## Expense
@@ -92,6 +98,10 @@ Renders `expense.html` prefilled.
   into `ten` / `ten_usd` from a different pot; the balance check credits
   back the row's old amount first.
 - **Writes:** `UPDATE expenses`
+
+### `POST /expense/{id}/delete`
+- **Writes:** `DELETE expenses` (amount returns to the pot)
+- **Response:** redirect `/?month=YYYY-MM` (ok) · redirect `/expense/{id}` (error)
 
 ---
 

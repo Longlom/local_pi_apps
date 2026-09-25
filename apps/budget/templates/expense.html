@@ -40,8 +40,18 @@
     <input type="checkbox" name="confirm_ten" value="1" />
     I thought this through — spend from the 10% pot
   </label>
-  <button type="submit" class="btn">{% if entry %}Save changes{% else %}Save expense{% endif %}</button>
+  <div class="form-actions">
+    <button type="submit" class="btn">{% if entry %}Save changes{% else %}Save expense{% endif %}</button>
+    {% if entry %}
+    <button type="submit" class="btn coral" form="expense-delete" formaction="/expense/{{ entry.id }}/delete"
+            formmethod="post">Delete</button>
+    {% endif %}
+  </div>
 </form>
+{% if entry %}
+<form id="expense-delete" method="post" action="/expense/{{ entry.id }}/delete"
+      onsubmit="return confirm('Delete this expense? The amount returns to the pot.');"></form>
+{% endif %}
 <script>
   const pot = document.getElementById("pot");
   const box = document.getElementById("ten-confirm");

@@ -33,8 +33,18 @@
   <label>Note
     <input type="text" name="note" maxlength="200" value="{{ entry.note if entry else '' }}" />
   </label>
-  <button type="submit" class="btn">{% if entry %}Save changes{% else %}Save income{% endif %}</button>
+  <div class="form-actions">
+    <button type="submit" class="btn">{% if entry %}Save changes{% else %}Save income{% endif %}</button>
+    {% if entry %}
+    <button type="submit" class="btn coral" form="income-delete" formaction="/income/{{ entry.id }}/delete"
+            formmethod="post">Delete</button>
+    {% endif %}
+  </div>
 </form>
+{% if entry %}
+<form id="income-delete" method="post" action="/income/{{ entry.id }}/delete"
+      onsubmit="return confirm('Delete this income? Pot balances will go down by this split.');"></form>
+{% endif %}
 <script>
   const gross = document.getElementById("gross");
   const ten = document.getElementById("ten");

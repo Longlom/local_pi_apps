@@ -274,6 +274,29 @@ class BudgetDbTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "matches the current balance"):
             db.add_correction(self.conn, "2026-09-23", "everyday", 0, "")
 
+    def test_income_and_expense_can_be_deleted(self):
+        income_id = db.add_income(
+            self.conn, "2026-09-20", 10000, "job_20", "", 1000, 5000, 4000
+        )
+        expense_id = db.add_expense(
+            self.conn, "2026-09-21", "everyday", 500, "food", "", False
+        )
+        db.delete_expense(self.conn, expense_id)
+        self.assertIsNone(db.get_expense(self.conn, expense_id))
+        self.assertEqual(db.balances(self.conn)["everyday"], 5000)
+        db.delete_income(self.conn, income_id)
+        self.assertIsNone(db.get_income(self.conn, income_id))
+        self.assertEqual(db.balances(self.conn)["ten"], 0)
+
+        blocked_id = db.add_income(
+            self.conn, "2026-09-22", 10000, "job_20", "", 1000, 5000, 4000
+        )
+        db.add_expense(
+            self.conn, "2026-09-23", "everyday", 4500, "food", "", False
+        )
+        with self.assertRaisesRegex(ValueError, "negative"):
+            db.delete_income(self.conn, blocked_id)
+
     def test_income_and_expense_can_be_edited(self):
         income_id = db.add_income(
             self.conn, "2026-09-20", 10000, "job_20", "pay", 1000, 5000, 4000

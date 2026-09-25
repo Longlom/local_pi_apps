@@ -215,6 +215,51 @@
     {% endfor %}
   </article>
 
+  <article class="chart-card" id="flows">
+    <h2>Money movements</h2>
+    <p class="muted">{{ nav.label }} — what moved into and out of each account.</p>
+    <div class="tabs flow-tabs" role="tablist" aria-label="Money movements by account">
+      {% for acc in flows %}
+      <button type="button" class="tab{% if loop.first %} is-active{% endif %}" role="tab"
+              aria-selected="{{ 'true' if loop.first else 'false' }}"
+              aria-controls="flow-{{ acc.key }}" id="tab-flow-{{ acc.key }}"
+              data-tab="{{ acc.key }}">{{ acc.label }}</button>
+      {% endfor %}
+    </div>
+    {% for acc in flows %}
+    <div class="tab-panel{% if not loop.first %} hidden{% endif %}" role="tabpanel"
+         id="flow-{{ acc.key }}" data-tab="{{ acc.key }}"
+         aria-labelledby="tab-flow-{{ acc.key }}" {% if not loop.first %}hidden{% endif %}>
+      {% if acc.has_activity %}
+        {% for row in acc.rows %}
+          {% if row.in_cents or row.out_cents %}
+          <div class="pot-flow">
+            <div class="pot-flow-head">
+              <strong>{{ row.currency }}</strong>
+              <span class="{% if row.net_cents > 0 %}net-up{% elif row.net_cents < 0 %}net-down{% endif %}">
+                Net {% if row.net_cents > 0 %}+{% endif %}{% if row.currency == 'USD' %}{{ fmt_usd(row.net_cents) }}{% else %}{{ fmt(row.net_cents) }}{% endif %}
+              </span>
+            </div>
+            <div class="pot-flow-row">
+              <span class="dir">In</span>
+              <div class="pot-flow-track in"><div style="width: {{ row.in_pct }}%"></div></div>
+              <span class="pot-flow-amount">{% if row.currency == 'USD' %}{{ fmt_usd(row.in_cents) }}{% else %}{{ fmt(row.in_cents) }}{% endif %}</span>
+            </div>
+            <div class="pot-flow-row">
+              <span class="dir">Out</span>
+              <div class="pot-flow-track out"><div style="width: {{ row.out_pct }}%"></div></div>
+              <span class="pot-flow-amount">{% if row.currency == 'USD' %}{{ fmt_usd(row.out_cents) }}{% else %}{{ fmt(row.out_cents) }}{% endif %}</span>
+            </div>
+          </div>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+      <p class="muted">No movement in {{ acc.label }} this month.</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </article>
+
   <article class="chart-card">
     <h2>This month’s flow</h2>
     {% set flow_any = summary.income_gross or summary.spent_local or summary.usd_local %}
@@ -406,6 +451,8 @@
     tabs.forEach((tab) => tab.addEventListener("click", () => show(tab.dataset.tab)));
   }
   bindTabs(document.getElementById("stock"));
+  bindTabs(document.getElementById("flows"));
+  bindTabs(document.getElementById("history"));
   const drill = document.getElementById("metric-detail");
   if (drill) {
     drill.scrollIntoView({ behavior: "smooth", block: "start" });

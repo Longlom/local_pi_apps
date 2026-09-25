@@ -138,6 +138,70 @@ def counted_totals(
     }
 
 
+def pot_flows(
+    incomes: list,
+    expenses: list,
+    trades: list,
+    deposits: list,
+    transfers: list,
+    corrections: list,
+) -> dict[str, dict[str, int]]:
+    flow = {pot: {"in": 0, "out": 0} for pot in db.POTS_ALL}
+    for row in incomes:
+        flow["ten"]["in"] += int(row["ten_cents"])
+        flow["everyday"]["in"] += int(row["everyday_cents"])
+        flow["savings"]["in"] += int(row["savings_cents"])
+    for row in expenses:
+        flow[row["pot"]]["out"] += int(row["amount_cents"])
+    for row in transfers:
+        flow["everyday"]["out"] += int(row["amount_cents"])
+        flow[row["to_pot"]]["in"] += int(row["amount_cents"])
+    for row in trades:
+        flow[row["from_pot"]]["out"] += int(row["local_cents"])
+        flow[row["to_pot"]]["in"] += int(row["usd_cents"])
+    for row in deposits:
+        if row["rub_cents"]:
+            flow[row["account"]]["in"] += int(row["rub_cents"])
+        if row["usd_cents"]:
+            flow[f"{row['account']}_usd"]["in"] += int(row["usd_cents"])
+    for row in corrections:
+        delta = int(row["delta_cents"])
+        if delta > 0:
+            flow[row["pot"]]["in"] += delta
+        elif delta < 0:
+            flow[row["pot"]]["out"] += -delta
+    return flow
+
+
+def account_flows(flow: dict[str, dict[str, int]]) -> list[dict]:
+    out = []
+    for key, label in db.COUNT_ACCOUNTS:
+        rows = []
+        for pot in db.ACCOUNT_POTS[key]:
+            currency = "USD" if pot in db.POTS_USD else BASE_CURRENCY
+            in_cents = flow[pot]["in"]
+            out_cents = flow[pot]["out"]
+            scale = max(in_cents, out_cents, 1)
+            rows.append(
+                {
+                    "pot": pot,
+                    "currency": currency,
+                    "in_cents": in_cents,
+                    "out_cents": out_cents,
+                    "net_cents": in_cents - out_cents,
+                    "in_pct": round(in_cents / scale * 100, 1),
+                    "out_pct": round(out_cents / scale * 100, 1),
+                }
+            )
+        out.append({
+            "key": key,
+            "label": label,
+            "rows": rows,
+            "has_activity": any(r["in_cents"] or r["out_cents"] for r in rows),
+        })
+    return out
+
+
 def safe_back(request: Request) -> str:
     referer = request.headers.get("referer") or "/"
     parsed = urlparse(referer)
@@ -411,6 +475,9 @@ def month_page(
     held_usd = counted["held_usd"]
     held_usd_rub = counted["held_usd_rub"]
 
+    flow = pot_flows(incomes, expenses, trades, deposits, transfers, corrections)
+    flows = account_flows(flow)
+
     detail_totals = {
         "ten": summary["ten"],
         "saved": summary["saved_local"],
@@ -436,6 +503,7 @@ def month_page(
         rates=rates,
         rate_chart=make_rate_chart(rates),
         stock_views=stock_views,
+        flows=flows,
         month_flow=month_flow,
         cat_bars=cat_bars,
         total_rub=total_rub,
@@ -549,6 +617,30 @@ def income_update(
         return RedirectResponse(f"/income/{income_id}", status_code=303)
 
 
+@app.post(
+    "/income/{income_id}/delete",
+    tags=["Income"],
+    summary="Delete income",
+    response_class=RedirectResponse,
+    status_code=303,
+    responses={303: REDIRECT_303},
+)
+def income_delete(request: Request, income_id: int):
+    month = None
+    try:
+        with db.session(DB_PATH) as conn:
+            entry = db.get_income(conn, income_id)
+            if entry is not None:
+                month = entry["occurred_on"][:7]
+            db.delete_income(conn, income_id)
+        flash(request, "Income deleted.", "ok")
+        target = f"/?month={month}" if month else "/"
+        return RedirectResponse(target, status_code=303)
+    except ValueError as exc:
+        flash(request, str(exc))
+        return RedirectResponse(f"/income/{income_id}", status_code=303)
+
+
 @app.get(
     "/expense",
     tags=["Expense"],
@@ -649,6 +741,30 @@ def expense_update(
             )
         flash(request, "Expense updated.", "ok")
         return RedirectResponse("/", status_code=303)
+    except ValueError as exc:
+        flash(request, str(exc))
+        return RedirectResponse(f"/expense/{expense_id}", status_code=303)
+
+
+@app.post(
+    "/expense/{expense_id}/delete",
+    tags=["Expense"],
+    summary="Delete expense",
+    response_class=RedirectResponse,
+    status_code=303,
+    responses={303: REDIRECT_303},
+)
+def expense_delete(request: Request, expense_id: int):
+    month = None
+    try:
+        with db.session(DB_PATH) as conn:
+            entry = db.get_expense(conn, expense_id)
+            if entry is not None:
+                month = entry["occurred_on"][:7]
+            db.delete_expense(conn, expense_id)
+        flash(request, "Expense deleted.", "ok")
+        target = f"/?month={month}" if month else "/"
+        return RedirectResponse(target, status_code=303)
     except ValueError as exc:
         flash(request, str(exc))
         return RedirectResponse(f"/expense/{expense_id}", status_code=303)

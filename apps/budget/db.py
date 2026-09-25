@@ -556,6 +556,21 @@ def update_income(
         )
 
 
+def delete_income(conn: sqlite3.Connection, income_id: int) -> None:
+    existing = get_income(conn, income_id)
+    if existing is None:
+        raise ValueError("Income not found")
+    bals = balances(conn)
+    bals["ten"] -= int(existing["ten_cents"])
+    bals["everyday"] -= int(existing["everyday_cents"])
+    bals["savings"] -= int(existing["savings_cents"])
+    if min(bals["ten"], bals["everyday"], bals["savings"]) < 0:
+        raise ValueError(
+            "Deleting this income would make a pot go negative — adjust other entries first"
+        )
+    conn.execute("DELETE FROM incomes WHERE id=?", (income_id,))
+
+
 def get_expense(conn: sqlite3.Connection, expense_id: int) -> sqlite3.Row | None:
     return conn.execute("SELECT * FROM expenses WHERE id=?", (expense_id,)).fetchone()
 
@@ -630,6 +645,13 @@ def update_expense(
         """,
         (occurred_on, pot, amount_cents, category, note, expense_id),
     )
+
+
+def delete_expense(conn: sqlite3.Connection, expense_id: int) -> None:
+    existing = get_expense(conn, expense_id)
+    if existing is None:
+        raise ValueError("Expense not found")
+    conn.execute("DELETE FROM expenses WHERE id=?", (expense_id,))
 
 
 def add_fx(

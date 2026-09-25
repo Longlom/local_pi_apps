@@ -466,6 +466,13 @@ h2 {
 
 /* ---------- Forms ---------- */
 
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
 form {
   display: grid;
   gap: var(--space-4);
@@ -851,6 +858,86 @@ a.row:focus-visible {
   height: 100%;
   border-radius: var(--radius-full);
   background: linear-gradient(90deg, var(--color-coral-700), var(--color-coral-400));
+}
+
+/* ---------- Per-account money movements ---------- */
+
+.flow-tabs {
+  margin-top: var(--space-2);
+}
+
+.pot-flow {
+  margin: var(--space-4) 0;
+}
+
+.pot-flow + .pot-flow {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--hairline);
+}
+
+.pot-flow-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-grey-300);
+}
+
+.pot-flow-head strong {
+  font-size: var(--font-size-xs);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-gold-300);
+}
+
+.pot-flow-head .net-up { color: var(--color-turq-300); }
+.pot-flow-head .net-down { color: var(--color-coral-300); }
+
+.pot-flow-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.pot-flow-row .dir {
+  flex: 0 0 34px;
+  font-size: 10px;
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-grey-500);
+}
+
+.pot-flow-track {
+  flex: 1;
+  height: 10px;
+  background: rgba(6, 9, 28, 0.7);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.pot-flow-track > div {
+  height: 100%;
+  border-radius: var(--radius-full);
+  min-width: 2px;
+}
+
+.pot-flow-track.in > div {
+  background: linear-gradient(90deg, var(--color-turq-500), var(--color-turq-300));
+}
+
+.pot-flow-track.out > div {
+  background: linear-gradient(90deg, var(--color-coral-700), var(--color-coral-400));
+}
+
+.pot-flow-amount {
+  flex: 0 0 auto;
+  min-width: 76px;
+  text-align: right;
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-grey-300);
 }
 
 /* ---------- Headline metric drill-down ---------- */
